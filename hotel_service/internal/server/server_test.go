@@ -3,8 +3,11 @@ package server_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"hotel_service/internal/config"
 	"hotel_service/internal/dtos/requests"
 	"hotel_service/internal/dtos/responses"
@@ -13,9 +16,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 // region Hotel Service Mock
@@ -25,8 +25,7 @@ type MockHotelService struct {
 
 func (m *MockHotelService) Create(req requests.CreateHotelRequest) (uuid.UUID, error) {
 	args := m.Called(req)
-	id := uuid.New()
-	return id, args.Error(0)
+	return args.Get(0).(uuid.UUID), args.Error(1)
 }
 
 func (m *MockHotelService) Update(hotelID uuid.UUID, req requests.UpdateHotelRequest) error {
@@ -34,8 +33,8 @@ func (m *MockHotelService) Update(hotelID uuid.UUID, req requests.UpdateHotelReq
 	return args.Error(0)
 }
 
-func (m *MockHotelService) GetByID(hotelID uuid.UUID, includePastRents bool) (*responses.GetHotelResponse, error) {
-	args := m.Called(hotelID, includePastRents)
+func (m *MockHotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, error) {
+	args := m.Called(hotelID)
 	return args.Get(0).(*responses.GetHotelResponse), args.Error(1)
 }
 
@@ -56,14 +55,14 @@ func (m *MockHotelService) ExistsById(id uuid.UUID) (bool, error) {
 
 // endregion
 
-// region Test Helpers
+// region Helpers
 func setupTestRouter(hotelService services.IHotelService) *mux.Router {
 	return server.SetupApiRouter(&config.ServerConfig{Prefix: "/api"}, hotelService)
 }
 
 // endregion
 
-// region Test Cases
+// region Test Endpoints
 
 func TestCreateHotel_CommonCase_Ok(t *testing.T) {
 	mockService := new(MockHotelService)
@@ -75,7 +74,7 @@ func TestCreateHotel_CommonCase_Ok(t *testing.T) {
 	}
 
 	id := uuid.New()
-	mockService.On("Create", reqBody).Return(nil)
+	mockService.On("Create", reqBody).Return(id, nil)
 
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest("POST", "/api/hotel/", bytes.NewReader(body))
@@ -102,7 +101,7 @@ func TestCreateHotel_ServiceError_Error(t *testing.T) {
 		NightPrice: -100000,
 	}
 
-	mockService.On("Create", reqBody).Return(nil, new(error)).Once()
+	mockService.On("Create", reqBody).Return(uuid.UUID{}, errors.New("error"))
 
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest("POST", "/api/hotel/", bytes.NewReader(body))
@@ -160,7 +159,27 @@ func TestUpdateHotel_HotelDoesNotExist_ErrorNotFound(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
-func TestGetHotel_HotelExists_Ok(t *testing.T) {
+func TestUpdateHotel_InvalidUUID_ErrorBadRequest(t *testing.T) {
+	mockService := new(MockHotelService)
+	router := setupTestRouter(mockService)
+
+	hotelID := "12345"
+	reqBody := requests.UpdateHotelRequest{
+		HotelName:  "Updated Hotel",
+		NightPrice: 12000,
+	}
+
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest("PUT", "/api/hotel/"+hotelID, bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestGetHotelWithoutPastRents_HotelExists_Ok(t *testing.T) {
 	mockService := new(MockHotelService)
 	router := setupTestRouter(mockService)
 
@@ -171,7 +190,7 @@ func TestGetHotel_HotelExists_Ok(t *testing.T) {
 		NightPrice: 10000,
 	}
 
-	mockService.On("GetByID", hotelID, true).Return(response, nil)
+	mockService.On("GetByID", hotelID).Return(response, nil)
 
 	req := httptest.NewRequest("GET", "/api/hotel/"+hotelID.String(), nil)
 	rec := httptest.NewRecorder()
@@ -193,7 +212,7 @@ func TestGetHotel_HotelDoesNotExist_ErrorNotFound(t *testing.T) {
 	router := setupTestRouter(mockService)
 
 	hotelID := uuid.New()
-	mockService.On("GetByID", hotelID, true).Return(nil, nil)
+	mockService.On("GetByID", hotelID).Return((*responses.GetHotelResponse)(nil), nil)
 
 	req := httptest.NewRequest("GET", "/api/hotel/"+hotelID.String(), nil)
 	rec := httptest.NewRecorder()
@@ -203,6 +222,20 @@ func TestGetHotel_HotelDoesNotExist_ErrorNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 
 	mockService.AssertExpectations(t)
+}
+
+func TestGetHotel_InvalidUUID_ErrorBadRequest(t *testing.T) {
+	mockService := new(MockHotelService)
+	router := setupTestRouter(mockService)
+
+	hotelID := "12345"
+
+	req := httptest.NewRequest("GET", "/api/hotel/"+hotelID, nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 func TestGetAllHotels_CommonCase_Ok(t *testing.T) {
@@ -216,9 +249,9 @@ func TestGetAllHotels_CommonCase_Ok(t *testing.T) {
 		},
 	}
 
-	mockService.On("GetAllHotels", nil).Return(response, nil)
+	mockService.On("GetAllHotels", (*uuid.UUID)(nil)).Return(response, nil)
 
-	req := httptest.NewRequest("GET", "/api/hotel/", nil)
+	req := httptest.NewRequest("GET", "/api/hotel", nil)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -261,13 +294,26 @@ func TestGetAllHotelsByAdmin_CommonCase_Ok(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestGetAllHotelsByAdmin_InvalidAdminUUID_ErrorBadRequest(t *testing.T) {
+	mockService := new(MockHotelService)
+	router := setupTestRouter(mockService)
+
+	adminID := "12345"
+
+	req := httptest.NewRequest("GET", "/api/hotel?admin="+adminID, nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
 func TestDeleteHotel_HotelExists_NoContent(t *testing.T) {
 	mockService := new(MockHotelService)
 	router := setupTestRouter(mockService)
 
 	hotelID := uuid.New()
 
-	mockService.On("ExistsById", hotelID).Return(true, nil)
 	mockService.On("DeleteHotel", hotelID).Return(nil)
 
 	req := httptest.NewRequest("DELETE", "/api/hotel/"+hotelID.String(), nil)
@@ -285,7 +331,6 @@ func TestDeleteHotel_HotelDoesNotExist_NoError(t *testing.T) {
 
 	hotelID := uuid.New()
 
-	mockService.On("ExistsById", hotelID).Return(false, nil)
 	mockService.On("DeleteHotel", hotelID).Return(nil)
 
 	req := httptest.NewRequest("DELETE", "/api/hotel/"+hotelID.String(), nil)
@@ -295,6 +340,20 @@ func TestDeleteHotel_HotelDoesNotExist_NoError(t *testing.T) {
 
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 	mockService.AssertExpectations(t)
+}
+
+func TestDeleteHotel_InvalidUUID_ErrorBadRequest(t *testing.T) {
+	mockService := new(MockHotelService)
+	router := setupTestRouter(mockService)
+
+	hotelID := "12345"
+
+	req := httptest.NewRequest("DELETE", "/api/hotel/"+hotelID, nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 // endregion

@@ -10,7 +10,7 @@ import (
 type IHotelService interface {
 	Create(request requests.CreateHotelRequest) (uuid.UUID, error)
 	Update(hotelID uuid.UUID, request requests.UpdateHotelRequest) error
-	GetByID(hotelID uuid.UUID, includePastRents bool) (*responses.GetHotelResponse, error)
+	GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, error)
 	ExistsById(id uuid.UUID) (bool, error)
 	GetAllHotels(adminUUID *uuid.UUID) (*responses.GetHotelsResponse, error)
 	DeleteHotel(hotelID uuid.UUID) error
@@ -29,7 +29,7 @@ func (s *HotelService) Update(hotelID uuid.UUID, request requests.UpdateHotelReq
 	return nil
 }
 
-func (s *HotelService) GetByID(hotelID uuid.UUID, pastRents bool) (*responses.GetHotelResponse, error) {
+func (s *HotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, error) {
 	// todo
 	return &responses.GetHotelResponse{NightPrice: 100}, nil
 }

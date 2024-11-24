@@ -1,20 +1,13 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"hotel_service/internal/config"
 	"hotel_service/internal/dtos/requests"
 	"hotel_service/internal/services"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
-	"github.com/gorilla/mux"
 )
 
 func SetupApiRouter(cfg *config.ServerConfig, hotelService services.IHotelService) *mux.Router {
@@ -25,44 +18,10 @@ func SetupApiRouter(cfg *config.ServerConfig, hotelService services.IHotelServic
 	apiRouter.HandleFunc("/hotel/", createHotelHandler(hotelService)).Methods("POST")
 	apiRouter.HandleFunc("/hotel/{hotel_id}", updateHotelHandler(hotelService)).Methods("PUT")
 	apiRouter.HandleFunc("/hotel/{hotel_id}", getHotelHandler(hotelService)).Methods("GET")
-	apiRouter.HandleFunc("/hotel/", getAllHotelsHandler(hotelService)).Methods("GET")
+	apiRouter.HandleFunc("/hotel", getAllHotelsHandler(hotelService)).Methods("GET")
 	apiRouter.HandleFunc("/hotel/{hotel_id}", deleteHotelHandler(hotelService)).Methods("DELETE")
 
 	return apiRouter
-}
-
-func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
-	router := SetupApiRouter(cfg, hotelService)
-
-	// Server configuration
-	srv := &http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
-	}
-
-	fmt.Printf("Server is starting on localhost%s\n", cfg.Port)
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	<-quit
-	fmt.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %v\n", err)
-	}
-
-	fmt.Println("Server exited gracefully")
 }
 
 // region Endpoints Handlers
@@ -78,18 +37,16 @@ func createHotelHandler(service services.IHotelService) http.HandlerFunc {
 		var id uuid.UUID
 		id, err := service.Create(req)
 		if err != nil {
-			http.Error(w, "Failed to create hotel", http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-
-		if err := json.NewEncoder(w).Encode(id); err != nil {
-			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			http.Error(w, "Failed to create hotel", http.StatusBadRequest)
 			return
 		}
 
 		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(id); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -131,9 +88,7 @@ func getHotelHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 
-		pastRents := r.URL.Query().Get("past_rents") == "true"
-
-		res, err := service.GetByID(hotelID, pastRents)
+		res, err := service.GetByID(hotelID)
 		if err != nil {
 			http.Error(w, "Failed to get hotel", http.StatusInternalServerError)
 			return

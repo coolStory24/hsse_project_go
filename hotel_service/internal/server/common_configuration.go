@@ -1,3 +1,7 @@
+// This configuration can be ignored from test coverage, because it only injects the dependencies
+// of services implementations and does not perform any business-logic
+//go:build testnocover
+
 package server
 
 import (
