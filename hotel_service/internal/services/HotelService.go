@@ -20,22 +20,22 @@ type HotelService struct {
 }
 
 func (s *HotelService) Create(hotel requests.CreateHotelRequest) (uuid.UUID, error) {
-	// todo
+	// todo @FismanMaxim
 	return uuid.New(), nil
 }
 
 func (s *HotelService) Update(hotelID uuid.UUID, request requests.UpdateHotelRequest) error {
-	// todo
+	// todo @svyatsharik
 	return nil
 }
 
 func (s *HotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, error) {
-	// todo
+	// todo @FismanMaxim
 	return &responses.GetHotelResponse{NightPrice: 100}, nil
 }
 
 func (s *HotelService) GetAllHotels(adminID *uuid.UUID) (*responses.GetHotelsResponse, error) {
-	// todo
+	// todo @svyatsharik
 	return &responses.GetHotelsResponse{
 		Hotels: []responses.GetHotelResponse{
 			{Id: uuid.New(), HotelName: "Hotel A", NightPrice: 10000},
@@ -43,11 +43,11 @@ func (s *HotelService) GetAllHotels(adminID *uuid.UUID) (*responses.GetHotelsRes
 }
 
 func (s *HotelService) DeleteHotel(hotelID uuid.UUID) error {
-	// todo
+	// todo svyatsharik
 	return nil
 }
 
 func (s *HotelService) ExistsById(hotelId uuid.UUID) (bool, error) {
-	// todo
+	// todo @FismanMaxim
 	return true, nil
 }
