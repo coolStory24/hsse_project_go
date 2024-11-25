@@ -1,11 +1,8 @@
-// This configuration can be ignored from test coverage, because it only injects the dependencies
-// of services implementations and does not perform any business-logic
-//go:build testnocover
-
 package server
 
 import (
 	"hotel_service/internal/config"
+	db2 "hotel_service/internal/db"
 	"hotel_service/internal/services"
 )
 
@@ -21,7 +18,12 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
-	hotelService := &services.HotelService{}
+	db, err := db2.NewDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	hotelService := services.NewHotelService(db)
 
 	return &CommonConfiguration{
 		ServerConfig: cfg,
