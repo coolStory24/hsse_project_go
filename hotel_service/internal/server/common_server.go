@@ -1,7 +1,3 @@
-// This file can be ignored from test coverage, because is sets up the server on given host,
-// which is difficult to test, while obvious to observe
-//go:build testnocover
-
 package server
 
 import (

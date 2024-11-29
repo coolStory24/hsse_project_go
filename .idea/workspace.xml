@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f377b0e-83a9-49a1-bd62-31b75d5dfa83" name="Changes" comment="add hotel service and tests" />
+    <list default="true" id="7f377b0e-83a9-49a1-bd62-31b75d5dfa83" name="Changes" comment="move endpoints to separate file" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,37 +49,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build hotel_service/cmd.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestExistsById_DoesNotExist_ReturnFalse in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestExistsById_Exists_ReturnTrue in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestGetHotelById_HotelWithIdDoesNotExist_ReturnNil in hotel_service/internal/services.executor&quot;: &quot;Debug&quot;,
-    &quot;Go Test.TestHotelService_Create in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestHotelService_GetByID in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestHotelService_Update in hotel_service/internal/services.executor&quot;: &quot;Debug&quot;,
-    &quot;Go Test.go test hotel_service/internal/server.executor&quot;: &quot;Coverage&quot;,
-    &quot;Go Test.go test hotel_service/internal/services (1).executor&quot;: &quot;Coverage&quot;,
-    &quot;Go Test.go test hotel_service/internal/services.executor&quot;: &quot;Coverage&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#8 on hotel-service&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Maxim&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build hotel_service/cmd.executor": "Run",
+    "Go Test.TestExistsById_DoesNotExist_ReturnFalse in hotel_service/internal/services.executor": "Run",
+    "Go Test.TestExistsById_Exists_ReturnTrue in hotel_service/internal/services.executor": "Run",
+    "Go Test.TestGetHotelById_HotelWithIdDoesNotExist_ReturnNil in hotel_service/internal/services.executor": "Debug",
+    "Go Test.TestHotelService_Create in hotel_service/internal/services.executor": "Run",
+    "Go Test.TestHotelService_GetByID in hotel_service/internal/services.executor": "Run",
+    "Go Test.TestHotelService_Update in hotel_service/internal/services.executor": "Debug",
+    "Go Test.go test hotel_service/internal/server.executor": "Coverage",
+    "Go Test.go test hotel_service/internal/services (1).executor": "Coverage",
+    "Go Test.go test hotel_service/internal/services.executor": "Coverage",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "#7 on feature/hotel-endpoints",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/Users/Maxim",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Go Test.go test hotel_service/internal/server">
     <configuration name="go build hotel_service/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="hsse_project_go" />
@@ -171,7 +171,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add todo's responsibilities in hotel_service.go" />
     <MESSAGE value="add hotel service and tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="add hotel service and tests" />
+    <MESSAGE value="move endpoints to separate file" />
+    <option name="LAST_COMMIT_MESSAGE" value="move endpoints to separate file" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
