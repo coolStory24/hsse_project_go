@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7f377b0e-83a9-49a1-bd62-31b75d5dfa83" name="Changes" comment="add hotel service and tests" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://C:/Program Files/Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="hotel-service" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;FismanMaxim&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/coolStory24/hsse_project_go&quot;,
+    &quot;accountId&quot;: &quot;36783413-3e48-4db0-8aae-6b65a6eff630&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2pJEhU4NUy7SGQCg3K9YooLSlhD" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build hotel_service/cmd.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestExistsById_DoesNotExist_ReturnFalse in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestExistsById_Exists_ReturnTrue in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestGetHotelById_HotelWithIdDoesNotExist_ReturnNil in hotel_service/internal/services.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.TestHotelService_Create in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestHotelService_GetByID in hotel_service/internal/services.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestHotelService_Update in hotel_service/internal/services.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.go test hotel_service/internal/server.executor&quot;: &quot;Coverage&quot;,
+    &quot;Go Test.go test hotel_service/internal/services (1).executor&quot;: &quot;Coverage&quot;,
+    &quot;Go Test.go test hotel_service/internal/services.executor&quot;: &quot;Coverage&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#8 on hotel-service&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Maxim&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
+  }
+}</component>
+  <component name="RunManager" selected="Go Test.go test hotel_service/internal/server">
+    <configuration name="go build hotel_service/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="hsse_project_go" />
+      <working_directory value="$PROJECT_DIR$/hotel_service" />
+      <kind value="PACKAGE" />
+      <package value="hotel_service/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/hotel_service/cmd/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestGetHotelById_HotelWithIdDoesNotExist_ReturnNil in hotel_service/internal/services" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="hsse_project_go" />
+      <working_directory value="$PROJECT_DIR$/hotel_service/internal/services" />
+      <root_directory value="$PROJECT_DIR$/hotel_service" />
+      <kind value="PACKAGE" />
+      <package value="hotel_service/internal/services" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestGetHotelById_HotelWithIdDoesNotExist_ReturnNil\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test hotel_service/internal/server" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="hsse_project_go" />
+      <working_directory value="$PROJECT_DIR$/hotel_service/internal/server" />
+      <root_directory value="$PROJECT_DIR$/hotel_service" />
+      <kind value="PACKAGE" />
+      <package value="hotel_service/internal/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test hotel_service/internal/services (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="hsse_project_go" />
+      <working_directory value="$PROJECT_DIR$/hotel_service/internal/services" />
+      <root_directory value="$PROJECT_DIR$/hotel_service" />
+      <kind value="PACKAGE" />
+      <package value="hotel_service/internal/services" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test hotel_service/internal/services" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="hsse_project_go" />
+      <working_directory value="$PROJECT_DIR$/hotel_service/internal/services" />
+      <root_directory value="$PROJECT_DIR$/hotel_service" />
+      <kind value="PACKAGE" />
+      <package value="hotel_service/internal/services" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.go test hotel_service/internal/server" />
+        <item itemvalue="Go Test.go test hotel_service/internal/services (1)" />
+        <item itemvalue="Go Build.go build hotel_service/cmd" />
+        <item itemvalue="Go Test.go test hotel_service/internal/services" />
+        <item itemvalue="Go Test.TestGetHotelById_HotelWithIdDoesNotExist_ReturnNil in hotel_service/internal/services" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-5df93f7ad4aa-df9ad98b711f-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.22855.106" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-GO-242.22855.106" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add todo's responsibilities in hotel_service.go" />
+    <MESSAGE value="add hotel service and tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="add hotel service and tests" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/hsse_project_go$go_test_hotel_service_internal_server.out" NAME="go test hotel_service/internal/server Coverage Results" MODIFIED="1732526243182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/hsse_project_go$go_test_hotel_service_internal_services__1_.out" NAME="go test hotel_service/internal/services (1) Coverage Results" MODIFIED="1732526179034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/hsse_project_go$go_test_hotel_service_internal_services.out" NAME="go test hotel_service/internal/services Coverage Results" MODIFIED="1732455272600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>
