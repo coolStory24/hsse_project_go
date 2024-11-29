@@ -1,16 +1,15 @@
 package app
 
 import (
-	"hotel_service/internal/config"
 	"hotel_service/internal/server"
 )
 
 func StartApp() {
-	cfg, err := config.GetServerConfig()
+	cfg, err := server.NewCommonConfiguration()
 
 	if err != nil {
 		panic(err)
 	}
 
-	server.NewServer(cfg)
+	server.NewServer(cfg.ServerConfig, cfg.HotelService)
 }

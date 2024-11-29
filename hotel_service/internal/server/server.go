@@ -1,55 +1,22 @@
 package server
 
 import (
-	"context"
-	"fmt"
-	"hotel_service/internal/config"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"github.com/gorilla/mux"
+	"hotel_service/internal/config"
+	"hotel_service/internal/server/endpoints"
+	"hotel_service/internal/services"
 )
 
-func NewServer(cfg *config.ServerConfig) {
+func SetupApiRouter(cfg *config.ServerConfig, hotelService services.IHotelService) *mux.Router {
 	router := mux.NewRouter()
 
+	// Setup API routes
 	apiRouter := router.PathPrefix(cfg.Prefix).Subrouter()
+	apiRouter.HandleFunc("/hotel/", endpoints.CreateHotelHandler(hotelService)).Methods("POST")
+	apiRouter.HandleFunc("/hotel/{hotel_id}", endpoints.UpdateHotelHandler(hotelService)).Methods("PUT")
+	apiRouter.HandleFunc("/hotel/{hotel_id}", endpoints.GetHotelHandler(hotelService)).Methods("GET")
+	apiRouter.HandleFunc("/hotel", endpoints.GetAllHotelsHandler(hotelService)).Methods("GET")
+	apiRouter.HandleFunc("/hotel/{hotel_id}", endpoints.DeleteHotelHandler(hotelService)).Methods("DELETE")
 
-	// Handle requests here:
-	//apiRouter.HandleFunc("/{path}", rest.{handler_name}).Methods("{METHOD}")
-	fmt.Println(apiRouter)
-
-	srv := &http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
-	}
-
-	fmt.Printf("Server is starting on localhost%s\n", cfg.Port)
-
-	go func() {
-		err := srv.ListenAndServe()
-
-		if err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	<-quit
-	fmt.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %v \n", err)
-	}
-
-	fmt.Println("Server exited gracefully")
+	return apiRouter
 }
