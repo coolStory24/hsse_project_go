@@ -21,7 +21,7 @@ func NewDatabase() (*Database, error) {
 		return nil, fmt.Errorf("missing required database environment variables")
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s", username, password, url)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s?sslmode=disable", username, password, url)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
