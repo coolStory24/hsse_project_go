@@ -18,7 +18,7 @@ func getConfigPath() (string, error) {
 	var configPath string
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
-	flags.StringVar(&configPath, "config", "../internal/config/config.yaml", "path to configuration file")
+	flags.StringVar(&configPath, "config", "/booking_service/internal/config/config.yaml", "path to configuration file")
 
 	err := flags.Parse(args[1:])
 
@@ -40,7 +40,15 @@ func GetServerConfig() (*ServerConfig, error) {
 
 	cleanedPath := filepath.Clean(path)
 
-	file, err := os.Open(cleanedPath)
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	parentTop := filepath.Dir(wd)
+	fullPath := parentTop + cleanedPath
+
+	file, err := os.Open(fullPath)
 
 	if err != nil {
 		return nil, err

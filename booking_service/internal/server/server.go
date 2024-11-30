@@ -3,53 +3,18 @@ package server
 import (
 	"booking_service/internal/config"
 	"booking_service/internal/rest"
-	"context"
-	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
+	"booking_service/internal/services"
 	"github.com/gorilla/mux"
 )
 
-func NewServer(cfg *config.ServerConfig) {
+func SetupApiRouter(cfg *config.ServerConfig, bookingService services.IBookingService) *mux.Router {
 	router := mux.NewRouter()
 
 	apiRouter := router.PathPrefix(cfg.Prefix).Subrouter()
+	apiRouter.HandleFunc("/rent", rest.CreateRentHandler(bookingService)).Methods("POST")
+	apiRouter.HandleFunc("/rent/{rent_id}", rest.UpdateRentHandler(bookingService)).Methods("PATCH")
+	apiRouter.HandleFunc("/rent", rest.GetRentsHandler(bookingService)).Methods("GET")
+	apiRouter.HandleFunc("/rent/{rent_id}", rest.GetRentByIDHandler(bookingService)).Methods("GET")
 
-	// Handle requests here:
-	// apiRouter.HandleFunc("/{path}", rest.{handler_name}).Methods("{METHOD}")
-
-	srv := &http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
-	}
-
-	fmt.Printf("Server is starting on localhost%s\n", cfg.Port)
-
-	go func() {
-		err := srv.ListenAndServe()
-
-		if err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	<-quit
-	fmt.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %v \n", err)
-	}
-
-	fmt.Println("Server exited gracefully")
+	return apiRouter
 }
