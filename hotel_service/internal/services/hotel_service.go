@@ -38,7 +38,11 @@ func (s *HotelService) Create(request requests.CreateHotelRequest) (uuid.UUID, e
 }
 
 func (s *HotelService) Update(hotelID uuid.UUID, request requests.UpdateHotelRequest) error {
-	// todo @svyatsharik
+	query := `UPDATE hotels SET hotel_name = $1, night_price = $2 WHERE id = $3`
+	_, err := s.Db.Connection.Exec(query, request.HotelName, request.NightPrice, hotelID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -57,15 +61,29 @@ func (s *HotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, 
 }
 
 func (s *HotelService) GetAllHotels(adminID *uuid.UUID) (*responses.GetHotelsResponse, error) {
-	// todo @svyatsharik
-	return &responses.GetHotelsResponse{
-		Hotels: []responses.GetHotelResponse{
-			{Id: uuid.New(), HotelName: "Hotel A", NightPrice: 10000},
-			{Id: uuid.New(), HotelName: "Hotel B", NightPrice: 20000}}}, nil
+	query := `SELECT id, hotel_name, night_price, administrator_id FROM hotels`
+	rows, err := s.Db.Connection.Query(query)
+	if (err != nil) {
+		return nil, err
+	}
+	var response responses.GetHotelsResponse
+	for rows.Next() {
+		h := responses.GetHotelResponse {}
+		err := rows.Scan(&h.Id, &h.HotelName, &h.NightPrice, &h.AdminId)
+		if (err != nil) {
+			return nil, err
+		}
+		response.Hotels = append(response.Hotels, h)
+	}
+	return &response, nil
 }
 
 func (s *HotelService) DeleteHotel(hotelID uuid.UUID) error {
-	// todo svyatsharik
+	query := `DELETE FROM hotels WHERE id = $1`
+	_, err := s.Db.Connection.Exec(query, hotelID)
+	if (err != nil) {
+		return err
+	}
 	return nil
 }
 
