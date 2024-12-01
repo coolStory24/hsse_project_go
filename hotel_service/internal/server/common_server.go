@@ -18,11 +18,11 @@ func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
 
 	// Server configuration
 	srv := &http.Server{
-		Addr:    cfg.Port,
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: router,
 	}
 
-	fmt.Printf("Server is starting on localhost%s\n", cfg.Port)
+	fmt.Printf("Server is starting on localhost%s\n", srv.Addr)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
