@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-func NewServer(cfg *config.ServerConfig, hotelService services.IBookingService) {
-	router := SetupApiRouter(cfg, hotelService)
+func NewServer(cfg *config.ServerConfig, bookingService services.IBookingService) {
+	router := SetupApiRouter(cfg, bookingService)
 
 	// Server configuration
 	srv := &http.Server{

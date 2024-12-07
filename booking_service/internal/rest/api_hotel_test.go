@@ -271,7 +271,7 @@ func TestUpdateRentHandler_ValidRequest_Ok(t *testing.T) {
 
 	mockService.On("UpdateRent", rentID, updateRequest).Return(nil)
 
-	req := httptest.NewRequest("PATCH", "/api/rent/"+rentID.String(), bytes.NewBuffer(reqBody))
+	req := httptest.NewRequest("PUT", "/api/rent/"+rentID.String(), bytes.NewBuffer(reqBody))
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -286,7 +286,7 @@ func TestUpdateRentHandler_InvalidRequestBody_StatusBadRequest(t *testing.T) {
 
 	reqBody := []byte("{invalid_json}")
 
-	req := httptest.NewRequest("PATCH", "/api/rent/some-rent-id", bytes.NewBuffer(reqBody))
+	req := httptest.NewRequest("PUT", "/api/rent/some-rent-id", bytes.NewBuffer(reqBody))
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -308,7 +308,7 @@ func TestUpdateRentHandler_InvalidRentID_StatsBadRequest(t *testing.T) {
 	}
 	reqBody, _ := json.Marshal(updateRequest)
 
-	req := httptest.NewRequest("PATCH", "/api/rent/invalid-rent-id", bytes.NewBuffer(reqBody))
+	req := httptest.NewRequest("PUT", "/api/rent/invalid-rent-id", bytes.NewBuffer(reqBody))
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)

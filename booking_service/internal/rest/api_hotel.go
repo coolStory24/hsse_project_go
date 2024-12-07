@@ -112,9 +112,9 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 		}
 
 		filter := requests.RentFilter{
-			ClientID:   clientID,
-			HotelierID: hotelierID,
-			HotelID:    hotelID,
+			ClientID:   &clientID,
+			HotelierID: &hotelierID,
+			HotelID:    &hotelID,
 			FromDate:   fromDate,
 			ToDate:     toDate,
 		}

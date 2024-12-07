@@ -3,6 +3,7 @@ package server
 import (
 	"booking_service/internal/config"
 	db2 "booking_service/internal/db"
+	"booking_service/internal/service_interaction"
 	"booking_service/internal/services"
 )
 
@@ -18,12 +19,19 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
+	// load database
 	db, err := db2.NewDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	bookingService := services.NewBookingService(db)
+	// load kafka bridge to hotel service
+	bridge, err := service_interaction.CommonHotelServiceBridge()
+	if err != nil {
+		return nil, err
+	}
+
+	bookingService := services.NewBookingService(db, bridge)
 
 	return &CommonConfiguration{
 		ServerConfig:   cfg,

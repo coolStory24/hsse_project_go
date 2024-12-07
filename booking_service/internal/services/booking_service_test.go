@@ -6,10 +6,12 @@ import (
 	db2 "booking_service/internal/db"
 	"booking_service/internal/services"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 	"time"
 )
@@ -22,11 +24,33 @@ func createMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	return db, mock
 }
 
+// region Mock Hotel Service Bridge
+type MockHotelServiceBridge struct {
+	mock.Mock
+}
+
+func (m *MockHotelServiceBridge) GetHotelPrice(hotelID uuid.UUID) (int, error) {
+	args := m.Called(hotelID)
+	return args.Int(0), args.Error(1)
+}
+
+func (m *MockHotelServiceBridge) SendKafkaMessage(hotelID uuid.UUID) error {
+	args := m.Called(hotelID)
+	return args.Error(0)
+}
+
+func (m *MockHotelServiceBridge) ReceiveKafkaMessage(hotelID uuid.UUID) (int, error) {
+	args := m.Called(hotelID)
+	return args.Int(0), args.Error(1)
+}
+
+// endregion
+
 func TestCreateRent_CommonCase_Ok(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 	rentID := uuid.New()
 	request := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
@@ -50,7 +74,7 @@ func TestCreateRent_ErrorCase_DBError(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 
 	request := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
@@ -74,7 +98,7 @@ func TestUpdateRent_Success(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 
 	rentID := uuid.New()
 	request := requests.UpdateRentRequest{
@@ -98,7 +122,7 @@ func TestUpdateRent_NoRowsAffected(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 
 	rentID := uuid.New()
 	request := requests.UpdateRentRequest{
@@ -123,7 +147,7 @@ func TestUpdateRent_DBError(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 
 	rentID := uuid.New()
 	request := requests.UpdateRentRequest{
@@ -148,15 +172,20 @@ func TestGetRentByID_CommonCase_ReturnRent(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bridgeMock := &MockHotelServiceBridge{}
+
 	rentID := uuid.New()
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, bridgeMock)
 	expectedRent := responses.GetRentResponse{
 		ID:           rentID,
 		HotelID:      uuid.New(),
 		ClientID:     uuid.New(),
 		CheckInDate:  time.Now(),
 		CheckOutDate: time.Now().Add(48 * time.Hour),
+		NightPrice:   1000_00,
 	}
+
+	bridgeMock.On("GetHotelPrice", expectedRent.HotelID).Return(expectedRent.NightPrice, nil)
 
 	mock.ExpectQuery("SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b").
 		WithArgs(rentID).
@@ -170,11 +199,40 @@ func TestGetRentByID_CommonCase_ReturnRent(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
+func TestGetRentByID_BridgeReturnError_ThrowError(t *testing.T) {
+	db, mock := createMockDB(t)
+	defer db.Close()
+
+	bridgeMock := &MockHotelServiceBridge{}
+
+	rentID := uuid.New()
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, bridgeMock)
+	expectedRent := responses.GetRentResponse{
+		ID:           rentID,
+		HotelID:      uuid.New(),
+		ClientID:     uuid.New(),
+		CheckInDate:  time.Now(),
+		CheckOutDate: time.Now().Add(48 * time.Hour),
+		NightPrice:   1000_00,
+	}
+
+	bridgeMock.On("GetHotelPrice", expectedRent.HotelID).Return(0, errors.New("bridge error"))
+
+	mock.ExpectQuery("SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b").
+		WithArgs(rentID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "hotel_id", "client_id", "check_in_date", "check_out_date"}).
+			AddRow(expectedRent.ID, expectedRent.HotelID, expectedRent.ClientID, expectedRent.CheckInDate, expectedRent.CheckOutDate))
+
+	_, err := bookingService.GetRentByID(rentID)
+
+	assert.Error(t, err)
+}
+
 func TestGetRentByID_NotFound(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 	rentID := uuid.New()
 
 	mock.ExpectQuery(`SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b WHERE b.id = \$1`).
@@ -192,7 +250,7 @@ func TestGetRentByID_DBError(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, &MockHotelServiceBridge{})
 	rentID := uuid.New()
 
 	mock.ExpectQuery(`SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b WHERE b.id = \$1`).
@@ -211,13 +269,17 @@ func TestGetRents_WithFullFilter_ReturnFilteredRents(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	mockBridge := &MockHotelServiceBridge{}
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, mockBridge)
 
 	clientID := uuid.New()
 	hotelierID := uuid.New()
 	hotelID := uuid.New()
 	fromDate := time.Now().Add(-24 * time.Hour)
 	toDate := time.Now().Add(24 * time.Hour)
+	nightPrice := 1000_00
+
+	mockBridge.On("GetHotelPrice", hotelID).Return(nightPrice, nil)
 
 	filter := requests.RentFilter{
 		ClientID:   &clientID,
@@ -244,6 +306,7 @@ func TestGetRents_WithFullFilter_ReturnFilteredRents(t *testing.T) {
 	assert.Equal(t, clientID, rents.Rents[0].ClientID)
 	assert.Equal(t, fromDate, rents.Rents[0].CheckInDate)
 	assert.Equal(t, toDate, rents.Rents[0].CheckOutDate)
+	assert.Equal(t, nightPrice, rents.Rents[0].NightPrice)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -251,15 +314,23 @@ func TestGetRents_WithPartialFilter_ReturnRents(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
-	bookingService := services.NewBookingService(&db2.Database{Connection: db})
+	clientID := uuid.New()
+	hotelID := uuid.New()
+	fromDate := time.Now().Add(-24 * time.Hour)
+	toDate := time.Now().Add(24 * time.Hour)
+	nightPrice := 1000_00
+
+	mockBridge := &MockHotelServiceBridge{}
+	bookingService := services.NewBookingService(&db2.Database{Connection: db}, mockBridge)
 	filter := requests.RentFilter{
 		ClientID: new(uuid.UUID),
 	}
 	mockRentID := uuid.New()
 
+	mockBridge.On("GetHotelPrice", hotelID).Return(nightPrice, nil)
 	mock.ExpectQuery("SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b").
 		WillReturnRows(sqlmock.NewRows([]string{"id", "hotel_id", "client_id", "check_in_date", "check_out_date"}).
-			AddRow(mockRentID, uuid.New(), uuid.New(), time.Now(), time.Now().Add(24*time.Hour)))
+			AddRow(mockRentID, hotelID, clientID, fromDate, toDate))
 
 	rents, err := bookingService.GetRents(filter)
 

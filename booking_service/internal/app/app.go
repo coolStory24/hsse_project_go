@@ -4,6 +4,7 @@ import (
 	"booking_service/internal/server"
 	"fmt"
 	"github.com/joho/godotenv"
+	"os"
 )
 
 func StartApp() {
@@ -22,9 +23,19 @@ func StartApp() {
 }
 
 func loadEnv() error {
-	err := godotenv.Load(".env")
-	if err != nil {
-		return fmt.Errorf("file .env in the root of the project not found")
+	env := os.Getenv("GO_ENV")
+	var fileName string
+
+	if env == "" {
+		fileName = ".env"
+	} else if env == "dev" {
+		fileName = ".env.dev"
 	}
+
+	err := godotenv.Load(fileName)
+	if err != nil {
+		return fmt.Errorf("file %s not found in the root of the project: %w", fileName, err)
+	}
+
 	return nil
 }

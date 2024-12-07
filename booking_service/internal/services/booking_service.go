@@ -4,6 +4,7 @@ import (
 	"booking_service/dtos/requests"
 	"booking_service/dtos/responses"
 	"booking_service/internal/db"
+	"booking_service/internal/service_interaction"
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
@@ -18,11 +19,12 @@ type IBookingService interface {
 }
 
 type BookingService struct {
-	Db *db.Database
+	Db                 *db.Database
+	hotelServiceBridge service_interaction.IHotelServiceBridge
 }
 
-func NewBookingService(database *db.Database) *BookingService {
-	return &BookingService{Db: database}
+func NewBookingService(database *db.Database, hotelServiceBridge service_interaction.IHotelServiceBridge) *BookingService {
+	return &BookingService{Db: database, hotelServiceBridge: hotelServiceBridge}
 }
 
 func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UUID, error) {
@@ -71,8 +73,13 @@ func (s *BookingService) GetRentByID(rentID uuid.UUID) (*responses.GetRentRespon
 		return nil, fmt.Errorf("failed to fetch rent: %w", err)
 	}
 
-	//Также нужно отправить запрос, чтобы получить стоимость комнаты
+	// Send Kafka request to get hotel price
+	price, err := s.hotelServiceBridge.GetHotelPrice(rent.HotelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get hotel price: %w", err)
+	}
 
+	rent.NightPrice = price
 	return &rent, nil
 }
 
@@ -134,7 +141,13 @@ func (s *BookingService) GetRents(filter requests.RentFilter) (*responses.GetRen
 		return nil, fmt.Errorf("failed to iterate over rents: %w", err)
 	}
 
-	// Нужно подгрузить для каждого отеля стоимости комнат
+	for i := range rents {
+		price, err := s.hotelServiceBridge.GetHotelPrice(rents[i].HotelID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get hotel price: %w", err)
+		}
+		rents[i].NightPrice = price
+	}
 
 	return &responses.GetRentsResponse{Rents: rents}, nil
 }
