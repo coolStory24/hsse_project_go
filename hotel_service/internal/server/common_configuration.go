@@ -3,6 +3,7 @@ package server
 import (
 	"hotel_service/internal/config"
 	db2 "hotel_service/internal/db"
+	"hotel_service/internal/service_interaction"
 	"hotel_service/internal/services"
 )
 
@@ -24,6 +25,12 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 	}
 
 	hotelService := services.NewHotelService(db)
+
+	bookingServiceBridge, err := service_interaction.CommonBookingServiceBridge()
+	if err != nil {
+		return nil, err
+	}
+	go bookingServiceBridge.StartListeningForHotelPriceRequests()
 
 	return &CommonConfiguration{
 		ServerConfig: cfg,
