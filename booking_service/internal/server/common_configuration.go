@@ -25,8 +25,7 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
-	// load kafka bridge to hotel service
-	bridge, err := service_interaction.CommonHotelServiceBridge()
+	bridge, err := service_interaction.NewHotelServiceBridge("localhost:50051")
 	if err != nil {
 		return nil, err
 	}

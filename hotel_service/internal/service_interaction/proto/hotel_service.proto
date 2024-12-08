@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package service_interaction;
+
+option go_package = "booking_service/internal/service_interaction;service_interaction";
+
+import "google/protobuf/wrappers.proto";
+
+service HotelService {
+  rpc GetHotelPrice(GetHotelPriceRequest) returns (GetHotelPriceResponse);
+}
+
+message GetHotelPriceRequest {
+  string hotel_id = 1;
+}
+
+message GetHotelPriceResponse {
+  int32 price = 1;
+}

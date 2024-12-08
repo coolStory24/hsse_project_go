@@ -17,6 +17,7 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
+	// Create hotel service instance
 	hotelService := &services.HotelService{}
 
 	return &CommonConfiguration{
