@@ -54,6 +54,7 @@ func createHotelHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 		slog.Info("The hotel was successfully created")
+		slog.Info("Hotel ID: " + id.String())
 	}
 }
 
@@ -75,6 +76,7 @@ func updateHotelHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 
+		slog.Info("Hotel ID: " + hotelID.String())
 		if exists, err := service.ExistsById(hotelID); err != nil || !exists {
 			http.Error(w, "Hotel with given id does not exist", http.StatusNotFound)
 			slog.Error("Hotel with given id does not exist" + strconv.Itoa(http.StatusNotFound))
@@ -89,6 +91,7 @@ func updateHotelHandler(service services.IHotelService) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusNoContent)
 		slog.Info("The hotel was successfully updated")
+		slog.Info("Hotel ID: " + hotelID.String())
 	}
 }
 
@@ -103,6 +106,7 @@ func getHotelHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 
+		slog.Info("Hotel ID: " + hotelID.String())
 		res, err := service.GetByID(hotelID)
 		if err != nil {
 			http.Error(w, "Failed to get hotel", http.StatusInternalServerError)
@@ -124,6 +128,7 @@ func getHotelHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 		slog.Info("The hotel was successfully got")
+		slog.Info("Hotel ID: " + hotelID.String())
 	}
 }
 
@@ -142,6 +147,7 @@ func getAllHotelsHandler(service services.IHotelService) http.HandlerFunc {
 			}
 			adminUUID = &id
 		}
+		slog.Info("Admin ID: " + adminID)
 
 		res, err := service.GetAllHotels(adminUUID)
 		if err != nil {
@@ -157,6 +163,7 @@ func getAllHotelsHandler(service services.IHotelService) http.HandlerFunc {
 			return
 		}
 		slog.Info("The all hotels was successfully got")
+		slog.Info("Admin ID: " + adminID)
 	}
 }
 
@@ -170,6 +177,7 @@ func deleteHotelHandler(service services.IHotelService) http.HandlerFunc {
 			slog.Error("Invalid hotel ID" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
+		slog.Info("Hotel ID: " + hotelID.String())
 
 		if err := service.DeleteHotel(hotelID); err != nil {
 			http.Error(w, "Failed to delete hotel", http.StatusInternalServerError)
@@ -179,6 +187,7 @@ func deleteHotelHandler(service services.IHotelService) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusNoContent)
 		slog.Info("The hotel was successfully deleted")
+		slog.Info("Hotel ID: " + hotelID.String())
 	}
 }
 
