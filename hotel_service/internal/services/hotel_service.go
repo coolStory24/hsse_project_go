@@ -6,6 +6,7 @@ import (
 	"hotel_service/internal/db"
 	"hotel_service/internal/dtos/requests"
 	"hotel_service/internal/dtos/responses"
+	"log/slog"
 
 	"github.com/google/uuid"
 )
@@ -28,6 +29,7 @@ func NewHotelService(database *db.Database) *HotelService {
 }
 
 func (s *HotelService) Create(request requests.CreateHotelRequest) (uuid.UUID, error) {
+	slog.Info("Creation hotel in service")
 	hotelID := uuid.New()
 	query := `INSERT INTO hotels (id, hotel_name, night_price, administrator_id) VALUES ($1, $2, $3, $4)`
 	_, err := s.Db.Connection.Exec(query, hotelID, request.HotelName, request.NightPrice, request.AdminId)
@@ -38,6 +40,7 @@ func (s *HotelService) Create(request requests.CreateHotelRequest) (uuid.UUID, e
 }
 
 func (s *HotelService) Update(hotelID uuid.UUID, request requests.UpdateHotelRequest) error {
+	slog.Info("Update hotel in service")
 	query := `UPDATE hotels SET hotel_name = $1, night_price = $2 WHERE id = $3`
 	_, err := s.Db.Connection.Exec(query, request.HotelName, request.NightPrice, hotelID)
 	if err != nil {
@@ -47,6 +50,7 @@ func (s *HotelService) Update(hotelID uuid.UUID, request requests.UpdateHotelReq
 }
 
 func (s *HotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, error) {
+	slog.Info("Getting hotel by ID in service")
 	query := `SELECT id, hotel_name, night_price, administrator_id FROM hotels WHERE id = $1`
 	row := s.Db.Connection.QueryRow(query, hotelID)
 
@@ -61,6 +65,7 @@ func (s *HotelService) GetByID(hotelID uuid.UUID) (*responses.GetHotelResponse, 
 }
 
 func (s *HotelService) GetAllHotels(adminID *uuid.UUID) (*responses.GetHotelsResponse, error) {
+	slog.Info("Getting all hotels in service")
 	query := `SELECT id, hotel_name, night_price, administrator_id FROM hotels`
 	rows, err := s.Db.Connection.Query(query)
 	if (err != nil) {
@@ -79,6 +84,7 @@ func (s *HotelService) GetAllHotels(adminID *uuid.UUID) (*responses.GetHotelsRes
 }
 
 func (s *HotelService) DeleteHotel(hotelID uuid.UUID) error {
+	slog.Info("Deletion hotel in service")
 	query := `DELETE FROM hotels WHERE id = $1`
 	_, err := s.Db.Connection.Exec(query, hotelID)
 	if (err != nil) {
@@ -88,6 +94,7 @@ func (s *HotelService) DeleteHotel(hotelID uuid.UUID) error {
 }
 
 func (s *HotelService) ExistsById(id uuid.UUID) (bool, error) {
+	slog.Info("Existence hotel by ID in service")
 	query := `SELECT EXISTS(SELECT 1 FROM hotels WHERE id = $1)`
 	var exists bool
 	err := s.Db.Connection.QueryRow(query, id).Scan(&exists)
