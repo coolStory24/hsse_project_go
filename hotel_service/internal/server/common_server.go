@@ -18,7 +18,7 @@ func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
 
 	// Server configuration
 	srv := &http.Server{
-		Addr:    cfg.Port,
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: router,
 	}
 
