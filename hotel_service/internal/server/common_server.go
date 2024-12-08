@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hotel_service/internal/config"
 	"hotel_service/internal/services"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 )
 
 func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
+	slog.Info("Starting a server")
 	router := SetupApiRouter(cfg, hotelService)
 
 	// Server configuration
@@ -22,11 +24,11 @@ func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
 		Handler: router,
 	}
 
-	fmt.Printf("Server is starting on localhost%s\n", srv.Addr)
+	slog.Info("Server is starting on localhost" + srv.Addr)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
+			slog.Error("Could not listen on %s: %v\n", cfg.Port, err)
 		}
 	}()
 
@@ -35,14 +37,14 @@ func NewServer(cfg *config.ServerConfig, hotelService services.IHotelService) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-quit
-	fmt.Println("Shutting down server...")
+	slog.Info("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %v\n", err)
+		slog.Error("Server forced to shutdown: %v\n", err)
 	}
 
-	fmt.Println("Server exited gracefully")
+	slog.Info("Server exited gracefully")
 }
