@@ -1,9 +1,9 @@
 package services_test
 
 import (
-	"booking_service/dtos/requests"
-	"booking_service/dtos/responses"
 	db2 "booking_service/internal/db"
+	"booking_service/internal/rest/dtos/requests"
+	"booking_service/internal/rest/dtos/responses"
 	"booking_service/internal/services"
 	"database/sql"
 	"errors"

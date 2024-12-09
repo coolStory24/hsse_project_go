@@ -1,9 +1,9 @@
 package services
 
 import (
-	"booking_service/dtos/requests"
-	"booking_service/dtos/responses"
 	"booking_service/internal/db"
+	"booking_service/internal/rest/dtos/requests"
+	"booking_service/internal/rest/dtos/responses"
 	"booking_service/internal/service_interaction"
 	"database/sql"
 	"fmt"

@@ -1,10 +1,10 @@
 package rest_test
 
 import (
-	"booking_service/dtos/requests"
-	"booking_service/dtos/responses"
 	"booking_service/internal/config"
 	errors2 "booking_service/internal/errors"
+	"booking_service/internal/rest/dtos/requests"
+	"booking_service/internal/rest/dtos/responses"
 	"booking_service/internal/server"
 	"booking_service/internal/services"
 	"bytes"

@@ -3,8 +3,8 @@ package service_interaction
 import (
 	"booking_service/internal/service_interaction/gen"
 	"context"
-	"fmt"
 	"google.golang.org/grpc/credentials/insecure"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,7 +35,7 @@ func (h *HotelServiceBridge) GetHotelPrice(hotelId uuid.UUID) (int, error) {
 	defer cancel()
 
 	request := &gen.GetHotelPriceRequest{HotelId: hotelId.String()}
-	fmt.Printf("Sending request to get price of hotel with id " + hotelId.String())
+	slog.Info("Sending request to get price of hotel with id " + hotelId.String())
 	response, err := h.grpcClient.GetHotelPrice(ctx, request)
 	if err != nil {
 		return 0, err

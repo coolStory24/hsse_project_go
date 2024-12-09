@@ -1,13 +1,13 @@
 package service_interaction
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	pb "hotel_service/internal/service_interaction/gen"
 	"hotel_service/internal/services"
+	"log/slog"
 )
 
 type BookingServiceBridge struct {
@@ -23,7 +23,7 @@ func NewBookingServiceBridge(hotelService services.IHotelService) *BookingServic
 }
 
 func (s *BookingServiceBridge) GetHotelPrice(ctx context.Context, req *pb.GetHotelPriceRequest) (*pb.GetHotelPriceResponse, error) {
-	fmt.Printf("Handling request to get price of hotel with id " + req.HotelId)
+	slog.Info("Handling request to get price of hotel with id " + req.HotelId)
 
 	id, err := uuid.Parse(req.HotelId)
 	if err != nil {

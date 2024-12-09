@@ -1,9 +1,12 @@
 package server
 
 import (
+	"encoding/json"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hotel_service/internal/config"
+	"hotel_service/internal/dtos/requests"
 	"hotel_service/internal/metrics"
 	"hotel_service/internal/server/endpoints"
 	"hotel_service/internal/services"

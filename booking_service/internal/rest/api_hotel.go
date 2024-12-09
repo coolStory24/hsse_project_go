@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"booking_service/dtos/requests"
 	custom_errors "booking_service/internal/errors"
+	"booking_service/internal/rest/dtos/requests"
 	"booking_service/internal/services"
 	"encoding/json"
 	"errors"

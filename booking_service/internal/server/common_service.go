@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,11 +23,9 @@ func NewServer(cfg *config.ServerConfig, bookingService services.IBookingService
 		Handler: router,
 	}
 
-	fmt.Printf("Server is starting on localhost: %s\n", cfg.Port)
-
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
+			slog.Error("Could not listen on %s: %v\n", cfg.Port, err)
 		}
 	}()
 
@@ -35,14 +34,14 @@ func NewServer(cfg *config.ServerConfig, bookingService services.IBookingService
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-quit
-	fmt.Println("Shutting down server...")
+	slog.Info("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %v\n", err)
+		slog.Error(fmt.Sprintf("Server forced to shutdown: %v\n", err))
 	}
 
-	fmt.Println("Server exited gracefully")
+	slog.Info("Server exited gracefully")
 }
