@@ -2,6 +2,7 @@ package server
 
 import (
 	"hotel_service/internal/config"
+	"hotel_service/internal/metrics"
 	"hotel_service/internal/services"
 )
 
@@ -19,6 +20,9 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 
 	// Create hotel service instance
 	hotelService := &services.HotelService{}
+
+	// Register metrics
+	metrics.Register()
 
 	return &CommonConfiguration{
 		ServerConfig: cfg,
