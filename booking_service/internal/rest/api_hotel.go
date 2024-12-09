@@ -72,7 +72,6 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		clientIDStr := queryParams.Get("client")
-		hotelierIDStr := queryParams.Get("hotelier")
 		hotelIDStr := queryParams.Get("hotel")
 		from := queryParams.Get("from")
 		to := queryParams.Get("to")
@@ -101,22 +100,20 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 		}
 
 		clientID, errClient := parseUUID(clientIDStr)
-		hotelierID, errHotelier := parseUUID(hotelierIDStr)
 		hotelID, errHotel := parseUUID(hotelIDStr)
 		fromDate, errFrom := parseTime(from)
 		toDate, errTo := parseTime(to)
 
-		if errClient != nil || errHotelier != nil || errHotel != nil || errFrom != nil || errTo != nil {
+		if errClient != nil || errHotel != nil || errFrom != nil || errTo != nil {
 			http.Error(w, "Invalid data (failed to parse)", http.StatusBadRequest)
 			return
 		}
 
 		filter := requests.RentFilter{
-			ClientID:   &clientID,
-			HotelierID: &hotelierID,
-			HotelID:    &hotelID,
-			FromDate:   fromDate,
-			ToDate:     toDate,
+			ClientID: clientID,
+			HotelID:  hotelID,
+			FromDate: fromDate,
+			ToDate:   toDate,
 		}
 
 		rents, err := service.GetRents(filter)

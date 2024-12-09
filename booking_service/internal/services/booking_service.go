@@ -92,21 +92,15 @@ func (s *BookingService) GetRents(filter requests.RentFilter) (*responses.GetRen
 	params := []interface{}{}
 	counter := 1
 
-	if filter.ClientID != nil {
+	if filter.ClientID != uuid.Nil {
 		query += fmt.Sprintf(" AND b.client_id = $%d", counter)
-		params = append(params, *filter.ClientID)
+		params = append(params, filter.ClientID)
 		counter++
 	}
 
-	if filter.HotelierID != nil {
-		query += fmt.Sprintf(" AND b.hotelier_id = $%d", counter)
-		params = append(params, *filter.HotelierID)
-		counter++
-	}
-
-	if filter.HotelID != nil {
+	if filter.HotelID != uuid.Nil {
 		query += fmt.Sprintf(" AND b.hotel_id = $%d", counter)
-		params = append(params, *filter.HotelID)
+		params = append(params, filter.HotelID)
 		counter++
 	}
 

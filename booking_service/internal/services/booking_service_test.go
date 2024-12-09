@@ -273,7 +273,6 @@ func TestGetRents_WithFullFilter_ReturnFilteredRents(t *testing.T) {
 	bookingService := services.NewBookingService(&db2.Database{Connection: db}, mockBridge)
 
 	clientID := uuid.New()
-	hotelierID := uuid.New()
 	hotelID := uuid.New()
 	fromDate := time.Now().Add(-24 * time.Hour)
 	toDate := time.Now().Add(24 * time.Hour)
@@ -282,19 +281,18 @@ func TestGetRents_WithFullFilter_ReturnFilteredRents(t *testing.T) {
 	mockBridge.On("GetHotelPrice", hotelID).Return(nightPrice, nil)
 
 	filter := requests.RentFilter{
-		ClientID:   &clientID,
-		HotelierID: &hotelierID,
-		HotelID:    &hotelID,
-		FromDate:   &fromDate,
-		ToDate:     &toDate,
+		ClientID: clientID,
+		HotelID:  hotelID,
+		FromDate: &fromDate,
+		ToDate:   &toDate,
 	}
 
 	mockRentID := uuid.New()
 	rows := sqlmock.NewRows([]string{"id", "hotel_id", "client_id", "check_in_date", "check_out_date"}).
 		AddRow(mockRentID, hotelID, clientID, fromDate, toDate)
 
-	mock.ExpectQuery(`SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b WHERE 1=1 AND b.client_id = \$1 AND b.hotelier_id = \$2 AND b.hotel_id = \$3 AND b.check_in_date >= \$4 AND b.check_out_date <= \$5`).
-		WithArgs(clientID, hotelierID, hotelID, fromDate, toDate).
+	mock.ExpectQuery(`SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b WHERE 1=1 AND b.client_id = \$1 AND b.hotel_id = \$2 AND b.check_in_date >= \$3 AND b.check_out_date <= \$4`).
+		WithArgs(clientID, hotelID, fromDate, toDate).
 		WillReturnRows(rows)
 
 	rents, err := bookingService.GetRents(filter)
@@ -323,7 +321,7 @@ func TestGetRents_WithPartialFilter_ReturnRents(t *testing.T) {
 	mockBridge := &MockHotelServiceBridge{}
 	bookingService := services.NewBookingService(&db2.Database{Connection: db}, mockBridge)
 	filter := requests.RentFilter{
-		ClientID: new(uuid.UUID),
+		ClientID: uuid.New(),
 	}
 	mockRentID := uuid.New()
 
