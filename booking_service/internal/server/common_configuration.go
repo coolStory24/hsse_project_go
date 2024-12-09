@@ -3,8 +3,10 @@ package server
 import (
 	"booking_service/internal/config"
 	db2 "booking_service/internal/db"
+	"booking_service/internal/metrics"
 	"booking_service/internal/service_interaction"
 	"booking_service/internal/services"
+	"os"
 )
 
 type CommonConfiguration struct {
@@ -25,10 +27,14 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
-	bridge, err := service_interaction.NewHotelServiceBridge("localhost:50051")
+	// setup grpc
+	bridge, err := service_interaction.NewHotelServiceBridge(os.Getenv("hotel_service_url"))
 	if err != nil {
 		return nil, err
 	}
+
+	// setup metrics
+	metrics.Register()
 
 	bookingService := services.NewBookingService(db, bridge)
 

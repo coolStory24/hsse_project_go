@@ -156,7 +156,6 @@ func TestGetRents_CommonCase_Ok(t *testing.T) {
 
 	clientID := uuid.New()
 	rentID := uuid.New()
-	hotelierId := uuid.New()
 	hotelId := uuid.New()
 	checkInDate := time.Now().Truncate(time.Second)
 	checkOutDate := checkInDate.Add(72 * time.Hour)
@@ -166,7 +165,6 @@ func TestGetRents_CommonCase_Ok(t *testing.T) {
 			{
 				ID:           rentID,
 				HotelID:      hotelId,
-				HotelierId:   hotelierId,
 				ClientID:     clientID,
 				NightPrice:   1000,
 				CheckInDate:  checkInDate,
@@ -177,8 +175,8 @@ func TestGetRents_CommonCase_Ok(t *testing.T) {
 
 	mockService.On("GetRents", mock.Anything).Return(&rents, nil)
 
-	request := fmt.Sprintf("/api/rent?client=%s&hotelier=%s&hotel=%s&from=%s&to=%s",
-		clientID.String(), hotelierId.String(), hotelId.String(),
+	request := fmt.Sprintf("/api/rent?client=%s&hotel=%s&from=%s&to=%s",
+		clientID.String(), hotelId.String(),
 		url.QueryEscape(checkInDate.Format(time.RFC3339)),
 		url.QueryEscape(checkInDate.Format(time.RFC3339)))
 
@@ -231,14 +229,13 @@ func TestGetRents_FilterOutAllRents_ReturnEmptyRentsArray(t *testing.T) {
 	router := setupTestRouter(mockService)
 
 	clientID := uuid.New()
-	hotelierId := uuid.New()
 	hotelId := uuid.New()
 	checkInDate := time.Now().Truncate(time.Second)
 
 	mockService.On("GetRents", mock.Anything).Return(&responses.GetRentsResponse{Rents: []responses.GetRentResponse{}}, nil)
 
-	request := fmt.Sprintf("/api/rent?client=%s&hotelier=%s&hotel=%s&from=%s&to=%s",
-		clientID.String(), hotelierId.String(), hotelId.String(),
+	request := fmt.Sprintf("/api/rent?client=%s&hotel=%s&from=%s&to=%s",
+		clientID.String(), hotelId.String(),
 		url.QueryEscape(checkInDate.Format(time.RFC3339)),
 		url.QueryEscape(checkInDate.Format(time.RFC3339)))
 
@@ -325,7 +322,6 @@ func TestGetRentByIDHandler_ValidRentID(t *testing.T) {
 	expectedRent := &responses.GetRentResponse{
 		ID:           rentID,
 		HotelID:      uuid.New(),
-		HotelierId:   uuid.New(),
 		ClientID:     uuid.New(),
 		NightPrice:   1000,
 		CheckInDate:  checkInDate,

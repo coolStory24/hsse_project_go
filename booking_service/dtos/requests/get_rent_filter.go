@@ -6,9 +6,8 @@ import (
 )
 
 type RentFilter struct {
-	ClientID   *uuid.UUID
-	HotelierID *uuid.UUID
-	HotelID    *uuid.UUID
-	FromDate   *time.Time
-	ToDate     *time.Time
+	ClientID uuid.UUID
+	HotelID  uuid.UUID
+	FromDate *time.Time
+	ToDate   *time.Time
 }

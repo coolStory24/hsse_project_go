@@ -2,6 +2,7 @@ package server
 
 import (
 	"hotel_service/internal/config"
+	"hotel_service/internal/metrics"
 	db2 "hotel_service/internal/db"
 	"hotel_service/internal/services"
 	"log/slog"
@@ -26,6 +27,9 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 	}
 
 	hotelService := services.NewHotelService(db)
+
+	// Register metrics
+	metrics.Register()
 
 	slog.Info("Common configuration was successfully created")
 	return &CommonConfiguration{
