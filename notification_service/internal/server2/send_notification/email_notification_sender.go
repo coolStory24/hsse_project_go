@@ -2,9 +2,9 @@ package send_notification
 
 import (
 	"fmt"
-	"hotel_service/internal/models"
-	"hotel_service/internal/server2/content_build"
 	"net/smtp"
+	"notification_service/internal/models"
+	"notification_service/internal/server2/content_build"
 )
 
 type EmailSender struct {
@@ -14,8 +14,8 @@ type EmailSender struct {
 	Password   string
 }
 
-func (e *EmailSender) Send(booking models.BookingRequest, contentBuilder content_build.IContentBuilder, clientData models.ClientData) error {
-	content := contentBuilder.BuildContent(booking)
+func (e *EmailSender) Send(notification models.NotificationData, contentBuilder content_build.IContentBuilder, clientData models.ClientData) error {
+	content := contentBuilder.BuildContent(notification)
 
 	auth := smtp.PlainAuth("", e.Username, e.Password, e.SMTPServer)
 

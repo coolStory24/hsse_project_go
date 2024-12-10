@@ -11,8 +11,8 @@ import (
 )
 
 type UserContactData struct {
-	email string
-	phone string
+	Email string `json:"Email"`
+	Phone string `json:"Phone"`
 }
 
 type IUserServiceBridge interface {
@@ -45,6 +45,6 @@ func (u *UserServiceBridge) GetUserContactData(userId uuid.UUID) (*UserContactDa
 		return nil, err
 	}
 
-	userContactData := &UserContactData{email: response.Email, phone: response.Phone}
+	userContactData := &UserContactData{Email: response.Email, Phone: response.Phone}
 	return userContactData, nil
 }

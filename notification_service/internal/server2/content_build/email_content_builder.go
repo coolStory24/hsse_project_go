@@ -2,16 +2,20 @@ package content_build
 
 import (
 	"fmt"
-	"hotel_service/internal/models"
+	"notification_service/internal/models"
 )
 
 type EmailContentBuilder struct{}
 
-func (e *EmailContentBuilder) BuildContent(bookingRequest models.BookingRequest) string {
-	booking := bookingRequest
+func NewEmailContentBuilder() *EmailContentBuilder {
+	return &EmailContentBuilder{}
+}
 
-	fromDate := booking.FromDate.Format("January 2, 2006")
-	toDate := booking.ToDate.Format("January 2, 2006")
+func (e *EmailContentBuilder) BuildContent(notification models.NotificationData) string {
+	booking := notification
+
+	fromDate := booking.RentData.CheckInDate.Format("January 2, 2006")
+	toDate := booking.RentData.CheckOutDate.Format("January 2, 2006")
 
 	emailContent := fmt.Sprintf(
 		"Dear Customer,\n\n"+
@@ -23,7 +27,7 @@ func (e *EmailContentBuilder) BuildContent(bookingRequest models.BookingRequest)
 			"We look forward to welcoming you. If you have any questions or need further assistance, feel free to reach out.\n\n"+
 			"Best regards,\n"+
 			"Your Hotel Team",
-		booking.HotelID, fromDate, toDate, booking.ClientEmail,
+		booking.RentData.HotelID, fromDate, toDate, booking.RentData.ClientID,
 	)
 
 	return emailContent

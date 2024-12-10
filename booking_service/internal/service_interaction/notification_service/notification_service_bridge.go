@@ -6,8 +6,8 @@ import (
 )
 
 type NotificationData struct {
-	UserContactData *user_service.UserContactData
-	RentData        *responses.GetRentResponse
+	UserContactData *user_service.UserContactData `json:"user_contact_data"`
+	RentData        *responses.GetRentResponse    `json:"rent_data"`
 }
 
 type INotificationServiceBridge interface {
