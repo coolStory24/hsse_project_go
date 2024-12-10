@@ -1,2 +1,2 @@
-# Hotel Service
+# Notification Service
 
