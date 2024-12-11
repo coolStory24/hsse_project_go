@@ -19,28 +19,52 @@ services:
       timeout: 5s
       retries: 5
 
-  # go-app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: go-app
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #     POSTGRES_DB: ${POSTGRES_DB}
-  #     POSTGRES_PORT: 5432
-  #     POSTGRES_HOST: postgres-db 
-  #     SERVER_PORT: :8080
-  #     SERVER_PREFIX: ${SERVER_PREFIX}
-  #     MIGRATIONS_DIR: "./migrations"
-  #   ports:
-  #     - "${SERVER_PORT}:8080"
-  #   volumes:
-  #     - .:/app
-  #   command: ["go", "run", "./cmd/main.go"]
+  goose-migrate:
+    image: golang:latest
+    container_name: goose-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres-db
+      POSTGRES_PORT: 5432
+    entrypoint: >
+      sh -c "
+      go install github.com/pressly/goose/v3/cmd/goose@latest &&
+      goose -dir ./internal/db/migrations postgres
+      \"postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres-db:5432/$POSTGRES_DB?sslmode=disable\" up
+      "
+
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      goose-migrate:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: postgres-db 
+      SERVER_PORT: :8080
+      SERVER_PREFIX: ${SERVER_PREFIX}
+      MIGRATIONS_DIR: "./migrations"
+    ports:
+      - "${SERVER_PORT}:8080"
+    volumes:
+      - .:/app
+    command: ["go", "run", "./cmd/main.go"]
 
 volumes:
   pgdata:
