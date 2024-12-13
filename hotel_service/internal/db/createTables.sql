@@ -1,15 +1,15 @@
+create table administrators (
+    id uuid primary key,
+    nickname text not null,
+    phone_number text,
+    email text not null,
+    password text not null
+);
+
 create table hotels (
     id uuid primary key,
-    hotel_name varchar(200) not null,
+    hotel_name text not null,
     night_price int not null,
     administrator_id uuid not null,
     foreign key (administrator_id) references administrators (id)
-);
-
-create table administrators (
-    id uuid primary key,
-    nickname varchar(50) not null,
-    phone_number varchar(20),
-    email varchar(100) not null,
-    password varchar(150) not null
 );
