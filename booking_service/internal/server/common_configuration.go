@@ -7,6 +7,7 @@ import (
 	"booking_service/internal/service_interaction"
 	"booking_service/internal/services"
 	"os"
+	"log/slog"
 )
 
 type CommonConfiguration struct {
@@ -15,6 +16,7 @@ type CommonConfiguration struct {
 }
 
 func NewCommonConfiguration() (*CommonConfiguration, error) {
+	slog.Info("Creating common configuration")
 	cfg, err := config.GetServerConfig()
 
 	if err != nil {
@@ -38,6 +40,7 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 
 	bookingService := services.NewBookingService(db, bridge)
 
+	slog.Info("Common configuration was successfully created")
 	return &CommonConfiguration{
 		ServerConfig:   cfg,
 		BookingService: bookingService,

@@ -148,7 +148,8 @@ func getAllHotelsHandler(service services.IHotelService) http.HandlerFunc {
 			id, err := uuid.Parse(adminID)
 			if err != nil {
 				http.Error(w, "Invalid admin ID", http.StatusBadRequest)
-				slog.Error("Invalid hotel ID" + strconv.Itoa(http.StatusBadRequest))
+				slog.Error("Invalid admin ID" + strconv.Itoa(http.StatusBadRequest))
+				slog.Info("Admin ID: " + adminID)
 				return
 			}
 			adminUUID = &id

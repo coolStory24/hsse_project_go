@@ -10,18 +10,23 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+	"log/slog"
+	"strconv"
 )
 
 func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Calling the rent creation handler")
 		var req requests.CreateRentRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			slog.Error("Invalid request body" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
 		if req.CheckOutDate.Before(req.CheckInDate) {
 			http.Error(w, "Check-out date cannot be before check-in date", http.StatusBadRequest)
+			slog.Error("Check-out date cannot be before check-in date" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
@@ -29,8 +34,10 @@ func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
 		if err != nil {
 			if errors.As(err, new(*custom_errors.ServiceBadRequestError)) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
+				slog.Error(err.Error() + strconv.Itoa(http.StatusBadRequest))
 			} else {
 				http.Error(w, "Failed to create rent", http.StatusInternalServerError)
+				slog.Error("Failed to create rent" + strconv.Itoa(http.StatusInternalServerError))
 			}
 			return
 		}
@@ -39,16 +46,21 @@ func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(rentID); err != nil {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			slog.Error("Failed to encode response" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
+		slog.Info("The rent was successfully created")
+		slog.Info("Rent ID: " + rentID.String())
 	}
 }
 
 func UpdateRentHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Calling the rent update handler")
 		var req requests.UpdateRentRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			slog.Error("Invalid request body" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
@@ -56,20 +68,25 @@ func UpdateRentHandler(service services.IBookingService) http.HandlerFunc {
 		rentID, err := uuid.Parse(vars["rent_id"])
 		if err != nil {
 			http.Error(w, "Invalid rent ID", http.StatusBadRequest)
+			slog.Error("Invalid rent ID" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
 		if err := service.UpdateRent(rentID, req); err != nil {
 			http.Error(w, "Failed to update rent", http.StatusInternalServerError)
+			slog.Error("Failed to update rent" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)
+		slog.Info("The rent was successfully updated")
+		slog.Info("Rent ID: " + rentID.String())
 	}
 }
 
 func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Calling the rents getting handler")
 		queryParams := r.URL.Query()
 		clientIDStr := queryParams.Get("client")
 		hotelIDStr := queryParams.Get("hotel")
@@ -106,6 +123,7 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 
 		if errClient != nil || errHotel != nil || errFrom != nil || errTo != nil {
 			http.Error(w, "Invalid data (failed to parse)", http.StatusBadRequest)
+			slog.Error("Invalid data (failed to parse)" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
@@ -119,41 +137,55 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 		rents, err := service.GetRents(filter)
 		if err != nil {
 			http.Error(w, "Failed to fetch rents", http.StatusInternalServerError)
+			slog.Error("Failed to fetch rents" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(rents); err != nil {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			slog.Error("Failed to encode response" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
+		slog.Info("The rents was successfully got")
+		slog.Info("Client ID: " + clientID.String())
+		slog.Info("Hotel ID: " + hotelID.String())
+		slog.Info("FromDate: " + fromDate.String())
+		slog.Info("ToDate: " + toDate.String())
 	}
 }
 
 func GetRentByIDHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Calling the rent getting handler")
 		vars := mux.Vars(r)
 		rentID, err := uuid.Parse(vars["rent_id"])
 		if err != nil {
 			http.Error(w, "Invalid rent ID", http.StatusBadRequest)
+			slog.Error("Invalid rent ID" + strconv.Itoa(http.StatusBadRequest))
 			return
 		}
 
 		rent, err := service.GetRentByID(rentID)
 		if err != nil {
 			http.Error(w, "Failed to fetch rent", http.StatusInternalServerError)
+			slog.Error("Failed to fetch rent" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
 
 		if rent == nil {
 			http.Error(w, "Rent not found", http.StatusNotFound)
+			slog.Error("Rent not found" + strconv.Itoa(http.StatusNotFound))
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(rent); err != nil {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			slog.Error("Failed to encode response" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
+		slog.Info("The rent was successfully got")
+		slog.Info("Rent ID: " + rentID.String())
 	}
 }
