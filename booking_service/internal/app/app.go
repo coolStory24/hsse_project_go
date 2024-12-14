@@ -6,22 +6,26 @@ import (
 	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
+    "log/slog"
 )
 
 func StartApp() {
 	slog.Info("Launching the application")
 	err := loadEnv()
 	if err != nil {
+		slog.Error(err.Error())
 		panic(err)
 	}
 
 	cfg, err := server.NewCommonConfiguration()
 
 	if err != nil {
+        slog.Error(err.Error())
 		panic(err)
 	}
 
 	server.NewServer(cfg.ServerConfig, cfg.BookingService)
+	slog.Info("Application is running")
 }
 
 func loadEnv() error {
@@ -40,5 +44,6 @@ func loadEnv() error {
 		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %w", fileName, err))
 	}
 
+    slog.Info("File .env was successfully loaded")
 	return nil
 }

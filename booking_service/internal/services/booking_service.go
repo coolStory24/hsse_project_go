@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"log/slog"
 )
 
 type IBookingService interface {
@@ -40,6 +41,7 @@ func NewBookingService(
 }
 
 func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UUID, error) {
+	slog.Info("Creation rent in service")
 	var rentID uuid.UUID
 
 	query := `
@@ -75,6 +77,7 @@ func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UU
 }
 
 func (s *BookingService) UpdateRent(rentID uuid.UUID, request requests.UpdateRentRequest) error {
+	slog.Info("Update rent in service")
 	query := `
 		UPDATE bookings
 		SET hotel_id = $2, client_id = $3, check_in_date = $4, check_out_date = $5
@@ -91,6 +94,7 @@ func (s *BookingService) UpdateRent(rentID uuid.UUID, request requests.UpdateRen
 }
 
 func (s *BookingService) GetRentByID(rentID uuid.UUID) (*responses.GetRentResponse, error) {
+	slog.Info("Getting rent by ID in service")
 	query := `
 		SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date
 		FROM bookings b
@@ -115,6 +119,7 @@ func (s *BookingService) GetRentByID(rentID uuid.UUID) (*responses.GetRentRespon
 }
 
 func (s *BookingService) GetRents(filter requests.RentFilter) (*responses.GetRentsResponse, error) {
+	slog.Info("Getting rents in service")
 	query := `
 		SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date
 		FROM bookings b
