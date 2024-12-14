@@ -23,7 +23,6 @@ func StartApp() {
 	}
 
 	server.NewServer(cfg.ServerConfig, cfg.HotelService)
-	slog.Info("Application is running")
 }
 
 func loadEnv() error {

@@ -4,6 +4,7 @@ import (
 	"booking_service/internal/server"
 	"fmt"
 	"github.com/joho/godotenv"
+	"log/slog"
 	"os"
     "log/slog"
 )
@@ -40,7 +41,7 @@ func loadEnv() error {
 
 	err := godotenv.Load(fileName)
 	if err != nil {
-		return fmt.Errorf("file %s not found in the root of the project: %w", fileName, err)
+		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %w", fileName, err))
 	}
 
     slog.Info("File .env was successfully loaded")

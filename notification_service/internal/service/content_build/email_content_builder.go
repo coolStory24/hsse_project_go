@@ -2,6 +2,7 @@ package content_build
 
 import (
 	"fmt"
+	"log/slog"
 	"notification_service/internal/models"
 )
 
@@ -29,6 +30,7 @@ func (e *EmailContentBuilder) BuildContent(notification models.NotificationData)
 			"Your Hotel Team",
 		booking.RentData.HotelID, fromDate, toDate, booking.RentData.ClientID,
 	)
+	slog.Info("Built content of the email")
 
 	return emailContent
 }

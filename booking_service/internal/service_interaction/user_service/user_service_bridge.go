@@ -11,8 +11,8 @@ import (
 )
 
 type UserContactData struct {
-	Email string `json:"Email"`
-	Phone string `json:"Phone"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
 }
 
 type IUserServiceBridge interface {

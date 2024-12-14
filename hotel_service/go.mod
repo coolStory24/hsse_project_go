@@ -6,9 +6,9 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
-	github.com/prometheus/client_golang v1.20.5
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/prometheus/client_golang v1.20.5
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.29.0
 	google.golang.org/grpc v1.68.1
@@ -19,6 +19,7 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/confluentinc/confluent-kafka-go v1.9.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/kr/text v0.2.0 // indirect
