@@ -4,7 +4,9 @@ import (
 	"booking_service/internal/config"
 	db2 "booking_service/internal/db"
 	"booking_service/internal/metrics"
-	"booking_service/internal/service_interaction"
+	"booking_service/internal/service_interaction/hotel_service"
+	"booking_service/internal/service_interaction/notification_service"
+	"booking_service/internal/service_interaction/user_service"
 	"booking_service/internal/services"
 	"os"
 	"log/slog"
@@ -29,8 +31,20 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 		return nil, err
 	}
 
-	// setup grpc
-	bridge, err := service_interaction.NewHotelServiceBridge(os.Getenv("hotel_service_url"))
+	// setup grpc with hotel service
+	hotelServiceBridge, err := hotel_service.NewHotelServiceBridge(os.Getenv("hotel_service_url"))
+	if err != nil {
+		return nil, err
+	}
+
+	// setup grpc with user service
+	userServiceBridge, err := user_service.NewUserServiceBridge(os.Getenv("user_service_url"))
+	if err != nil {
+		return nil, err
+	}
+
+	// setup kafka to notification service
+	notificationServiceBridge, err := notification_service.NewNotificationServiceBridge()
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +52,7 @@ func NewCommonConfiguration() (*CommonConfiguration, error) {
 	// setup metrics
 	metrics.Register()
 
-	bookingService := services.NewBookingService(db, bridge)
+	bookingService := services.NewBookingService(db, hotelServiceBridge, userServiceBridge, notificationServiceBridge)
 
 	slog.Info("Common configuration was successfully created")
 	return &CommonConfiguration{

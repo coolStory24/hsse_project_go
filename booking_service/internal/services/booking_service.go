@@ -4,7 +4,9 @@ import (
 	"booking_service/internal/db"
 	"booking_service/internal/rest/dtos/requests"
 	"booking_service/internal/rest/dtos/responses"
-	"booking_service/internal/service_interaction"
+	"booking_service/internal/service_interaction/hotel_service"
+	"booking_service/internal/service_interaction/notification_service"
+	"booking_service/internal/service_interaction/user_service"
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
@@ -20,12 +22,22 @@ type IBookingService interface {
 }
 
 type BookingService struct {
-	Db                 *db.Database
-	hotelServiceBridge service_interaction.IHotelServiceBridge
+	Db                        *db.Database
+	hotelServiceBridge        hotel_service.IHotelServiceBridge
+	userServiceBridge         user_service.IUserServiceBridge
+	notificationServiceBridge notification_service.INotificationServiceBridge
 }
 
-func NewBookingService(database *db.Database, hotelServiceBridge service_interaction.IHotelServiceBridge) *BookingService {
-	return &BookingService{Db: database, hotelServiceBridge: hotelServiceBridge}
+func NewBookingService(
+	database *db.Database,
+	hotelServiceBridge hotel_service.IHotelServiceBridge,
+	userServiceBridge user_service.IUserServiceBridge,
+	notificationServiceBridge notification_service.INotificationServiceBridge) *BookingService {
+	return &BookingService{
+		Db:                        database,
+		hotelServiceBridge:        hotelServiceBridge,
+		userServiceBridge:         userServiceBridge,
+		notificationServiceBridge: notificationServiceBridge}
 }
 
 func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UUID, error) {
@@ -41,6 +53,20 @@ func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UU
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to create rent: %w", err)
 	}
+
+	createdRent, err := s.GetRentByID(rentID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to handle rent creation: %w", err)
+	}
+
+	userContactData, err := s.userServiceBridge.GetUserContactData(request.ClientID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to fetch user data for notification: %w", err)
+	}
+
+	notificationData := &notification_service.NotificationData{UserContactData: userContactData, RentData: createdRent}
+	s.notificationServiceBridge.SendNotification(notificationData)
+
 	return rentID, nil
 }
 

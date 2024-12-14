@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package service_interaction;
+
+option go_package = "booking_service/internal/service_interaction;service_interaction";
+
+import "google/protobuf/wrappers.proto";
+
+service UserService {
+  rpc GetUserContactDate(GetUserContactDataRequest) returns (GetUserContactDataResponse);
+}
+
+message GetUserContactDataRequest {
+  string user_id = 1;
+}
+
+message GetUserContactDataResponse {
+  string email = 1;
+  string phone = 2;
+}
