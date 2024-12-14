@@ -58,6 +58,12 @@ func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UU
 	}
 
 	userContactData, err := s.userServiceBridge.GetUserContactData(request.ClientID)
+	// todo: remove when there is user service
+	if err != nil {
+		userContactData = &user_service.UserContactData{Phone: "123546", Email: "test@gmail.com"}
+		err = nil
+	}
+
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to fetch user data for notification: %w", err)
 	}
@@ -99,7 +105,6 @@ func (s *BookingService) GetRentByID(rentID uuid.UUID) (*responses.GetRentRespon
 		return nil, fmt.Errorf("failed to fetch rent: %w", err)
 	}
 
-	// Send Kafka request to get hotel price
 	price, err := s.hotelServiceBridge.GetHotelPrice(rent.HotelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get hotel price: %w", err)

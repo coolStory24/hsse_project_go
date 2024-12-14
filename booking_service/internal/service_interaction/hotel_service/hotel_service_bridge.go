@@ -31,7 +31,7 @@ func NewHotelServiceBridge(grpcAddress string) (*HotelServiceBridge, error) {
 }
 
 func (h *HotelServiceBridge) GetHotelPrice(hotelId uuid.UUID) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
 	request := &gen2.GetHotelPriceRequest{HotelId: hotelId.String()}

@@ -3,6 +3,10 @@ package notification_service
 import (
 	"booking_service/internal/rest/dtos/responses"
 	"booking_service/internal/service_interaction/user_service"
+	"context"
+	"encoding/json"
+	"github.com/segmentio/kafka-go"
+	"log/slog"
 )
 
 type NotificationData struct {
@@ -15,12 +19,34 @@ type INotificationServiceBridge interface {
 }
 
 type NotificationServiceBridge struct {
+	writer *kafka.Writer
 }
 
-func NewNotificationServiceBridge() (*NotificationServiceBridge, error) {
-	return &NotificationServiceBridge{}, nil
+func NewNotificationServiceBridge(broker string, topic string) *NotificationServiceBridge {
+	writer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers:  []string{broker},
+		Topic:    topic,
+		Balancer: &kafka.LeastBytes{},
+	})
+	return &NotificationServiceBridge{writer: writer}
 }
 
 func (b *NotificationServiceBridge) SendNotification(notificationData *NotificationData) {
-	// todo: send kafka request
+	jsonData, err := json.Marshal(notificationData)
+	if err != nil {
+		slog.Error("Failed to serialize notification data: %v", err)
+		return
+	}
+
+	message := kafka.Message{
+		Value: jsonData,
+	}
+
+	err = b.writer.WriteMessages(context.Background(), message)
+	if err != nil {
+		slog.Error("Failed to send Kafka message: %v", err)
+		return
+	}
+
+	slog.Info("Message sent successfully to Kafka")
 }

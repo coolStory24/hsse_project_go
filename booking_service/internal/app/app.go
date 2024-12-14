@@ -4,10 +4,12 @@ import (
 	"booking_service/internal/server"
 	"fmt"
 	"github.com/joho/godotenv"
+	"log/slog"
 	"os"
 )
 
 func StartApp() {
+	slog.Info("Launching the application")
 	err := loadEnv()
 	if err != nil {
 		panic(err)
@@ -23,6 +25,7 @@ func StartApp() {
 }
 
 func loadEnv() error {
+	slog.Info("Loading .env file")
 	env := os.Getenv("GO_ENV")
 	var fileName string
 
@@ -34,7 +37,7 @@ func loadEnv() error {
 
 	err := godotenv.Load(fileName)
 	if err != nil {
-		return fmt.Errorf("file %s not found in the root of the project: %w", fileName, err)
+		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %w", fileName, err))
 	}
 
 	return nil
