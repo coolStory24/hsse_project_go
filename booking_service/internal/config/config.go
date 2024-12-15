@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+	"log/slog"
 )
 
 type ServerConfig struct {
@@ -14,11 +15,12 @@ type ServerConfig struct {
 }
 
 func getConfigPath() (string, error) {
+	slog.Info("Getting the config path")
 	args := os.Args
 	var configPath string
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
-	flags.StringVar(&configPath, "config", "../internal/config/config.yaml", "path to configuration file")
+	flags.StringVar(&configPath, "config", "/booking_service/internal/config/config.yaml", "path to configuration file")
 
 	err := flags.Parse(args[1:])
 
@@ -26,10 +28,12 @@ func getConfigPath() (string, error) {
 		return "", err
 	}
 
+	slog.Info("Config path was successfully got")
 	return configPath, nil
 }
 
 func GetServerConfig() (*ServerConfig, error) {
+	slog.Info("Getting the server config")
 	var cfg ServerConfig
 
 	path, err := getConfigPath()
@@ -40,7 +44,15 @@ func GetServerConfig() (*ServerConfig, error) {
 
 	cleanedPath := filepath.Clean(path)
 
-	file, err := os.Open(cleanedPath)
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	parentTop := filepath.Dir(wd)
+	fullPath := parentTop + cleanedPath
+
+	file, err := os.Open(fullPath)
 
 	if err != nil {
 		return nil, err
@@ -51,5 +63,6 @@ func GetServerConfig() (*ServerConfig, error) {
 		return nil, err
 	}
 
+	slog.Info("Server config was successfully got")
 	return &cfg, nil
 }

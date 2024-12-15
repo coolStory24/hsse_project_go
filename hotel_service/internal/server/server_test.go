@@ -77,7 +77,7 @@ func TestCreateHotel_CommonCase_Ok(t *testing.T) {
 	mockService.On("Create", reqBody).Return(id, nil)
 
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/hotel/", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/api/hotel", bytes.NewReader(body))
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -104,7 +104,7 @@ func TestCreateHotel_ServiceError_Error(t *testing.T) {
 	mockService.On("Create", reqBody).Return(uuid.UUID{}, errors.New("error"))
 
 	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/api/hotel/", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/api/hotel", bytes.NewReader(body))
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
