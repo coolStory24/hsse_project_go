@@ -13,6 +13,8 @@ func SetupApiRouter(cfg *config.ServerConfig, userService services.IUserService)
 	// Setup API routes
 	apiRouter := router.PathPrefix(cfg.Prefix).Subrouter()
 	apiRouter.HandleFunc("/user/auth", NewAuthHandler(userService)).Methods("POST")
+	apiRouter.HandleFunc("/user/create", NewCreateHandler(userService)).Methods("POST")
+	apiRouter.HandleFunc("/user/me", NewMeHandler(userService)).Methods("GET")
 
 	return apiRouter
 }

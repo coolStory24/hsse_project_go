@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"user_service/internal/db"
 	"user_service/internal/user"
+
+	"github.com/google/uuid"
 )
 
 type IUserRepository interface {
@@ -21,14 +23,14 @@ func NewUserRepository(database *db.Database) *UserRepository {
 
 func (s *UserRepository) GetByEmail(email string) (*user.UserModel, error) {
 	query := `
-		SELECT u.id, u.user_name, u.email, u.password_hash, u.role
-		FROM user u
+		SELECT u.id, u.username, u.email, u.password_hash, u.role
+		FROM users u
 		WHERE u.email = $1`
 
 	row := s.Db.Connection.QueryRow(query, email)
 
 	var user user.UserModel
-	if err := row.Scan(&user.Id, &user.Username, &user.Email, &user.PasswordHash, user.Role); err != nil {
+	if err := row.Scan(&user.Id, &user.Username, &user.Email, &user.PasswordHash, &user.Role); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -36,4 +38,22 @@ func (s *UserRepository) GetByEmail(email string) (*user.UserModel, error) {
 	}
 
 	return &user, nil
+}
+
+func (s *UserRepository) Create(username string, email string, role user.Role, passwordHash string) (*uuid.UUID, error) {
+	query := `
+		INSERT INTO users (username, email, password_hash, role)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`
+
+	var userId uuid.UUID
+
+	err := s.Db.Connection.QueryRow(query, username, email, passwordHash, role).
+		Scan(&userId)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	return &userId, nil
 }

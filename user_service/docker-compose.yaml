@@ -59,6 +59,7 @@ services:
       POSTGRES_HOST: postgres-db 
       SERVER_PORT: :8080
       SERVER_PREFIX: ${SERVER_PREFIX}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       MIGRATIONS_DIR: "./migrations"
     ports:
       - "${SERVER_PORT}:8080"

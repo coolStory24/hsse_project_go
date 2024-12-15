@@ -24,13 +24,7 @@ func NewServer(cfg *config.ServerConfig) {
 		return
 	}
 
-	// migrationErr := migrator.RunMigrations(dbConnection.Connection)
-
-	// if migrationErr != nil {
-	// 	fmt.Println(err)
-	// }
-
-	router := rest.SetupApiRouter(cfg, services.NewUserService(repositories.NewUserRepository(dbConnection)))
+	router := rest.SetupApiRouter(cfg, services.NewUserService(repositories.NewUserRepository(dbConnection), services.NewEncryptionService(cfg.EncryptionKey)))
 
 	// Server configuration
 	srv := &http.Server{
@@ -38,7 +32,7 @@ func NewServer(cfg *config.ServerConfig) {
 		Handler: router,
 	}
 
-	fmt.Printf("Server is starting on localhost%s\n", cfg.Port)
+	fmt.Printf("Server is starting on port %s\n", cfg.Port)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

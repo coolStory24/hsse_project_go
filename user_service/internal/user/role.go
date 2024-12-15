@@ -1,10 +1,10 @@
 package user
 
-type Role int
+type Role string
 
 const (
-	Owner Role = iota
-	Guest
+	Owner Role = "owner"
+	Guest Role = "guest"
 )
 
 var RoleNames = map[Role]string{
