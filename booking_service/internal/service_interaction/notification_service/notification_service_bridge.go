@@ -5,6 +5,7 @@ import (
 	"booking_service/internal/service_interaction/user_service"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/segmentio/kafka-go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -49,7 +50,7 @@ func (b *NotificationServiceBridge) SendNotification(ctx context.Context, notifi
 
 	jsonData, err := json.Marshal(notificationData)
 	if err != nil {
-		slog.Error("Failed to serialize notification data: %v", err)
+		slog.Error(fmt.Sprintf("Failed to serialize notification data: %v", err))
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "Failed to serialize notification data")
 		return
@@ -63,7 +64,7 @@ func (b *NotificationServiceBridge) SendNotification(ctx context.Context, notifi
 
 	err = b.writer.WriteMessages(ctx, message)
 	if err != nil {
-		slog.Error("Failed to send Kafka message: %v", err)
+		slog.Error(fmt.Sprintf("Failed to send Kafka message: %v", err))
 		span.RecordError(err)
 		span.SetStatus(codes.Error, "Failed to send Kafka message")
 		return

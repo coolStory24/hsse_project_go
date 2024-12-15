@@ -20,7 +20,7 @@ type IUserServiceBridge interface {
 }
 
 type UserServiceBridge struct {
-	grpcClient gen.UserServiceClient
+	GrpcClient gen.UserServiceClient
 }
 
 func NewUserServiceBridge(grpcAddress string) (*UserServiceBridge, error) {
@@ -31,7 +31,7 @@ func NewUserServiceBridge(grpcAddress string) (*UserServiceBridge, error) {
 
 	client := gen.NewUserServiceClient(conn)
 
-	return &UserServiceBridge{grpcClient: client}, nil
+	return &UserServiceBridge{GrpcClient: client}, nil
 }
 
 func (u *UserServiceBridge) GetUserContactData(userId uuid.UUID) (*UserContactData, error) {
@@ -40,7 +40,7 @@ func (u *UserServiceBridge) GetUserContactData(userId uuid.UUID) (*UserContactDa
 
 	request := &gen.GetUserContactDataRequest{UserId: userId.String()}
 	slog.Info("Sending request to get contact data of user with id " + userId.String())
-	response, err := u.grpcClient.GetUserContactDate(ctx, request)
+	response, err := u.GrpcClient.GetUserContactDate(ctx, request)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ type IHotelServiceBridge interface {
 }
 
 type HotelServiceBridge struct {
-	grpcClient gen2.HotelServiceClient
+	GrpcClient gen2.HotelServiceClient
 }
 
 func NewHotelServiceBridge(grpcAddress string) (*HotelServiceBridge, error) {
@@ -27,7 +27,7 @@ func NewHotelServiceBridge(grpcAddress string) (*HotelServiceBridge, error) {
 
 	client := gen2.NewHotelServiceClient(conn)
 
-	return &HotelServiceBridge{grpcClient: client}, nil
+	return &HotelServiceBridge{GrpcClient: client}, nil
 }
 
 func (h *HotelServiceBridge) GetHotelPrice(hotelId uuid.UUID) (int, error) {
@@ -36,7 +36,7 @@ func (h *HotelServiceBridge) GetHotelPrice(hotelId uuid.UUID) (int, error) {
 
 	request := &gen2.GetHotelPriceRequest{HotelId: hotelId.String()}
 	slog.Info("Sending request to get price of hotel with id " + hotelId.String())
-	response, err := h.grpcClient.GetHotelPrice(ctx, request)
+	response, err := h.GrpcClient.GetHotelPrice(ctx, request)
 	if err != nil {
 		return 0, err
 	}

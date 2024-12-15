@@ -13,7 +13,7 @@ func StartKafkaConsumer(broker string, topic string, handler INotificationReques
 	defer reader.Close()
 
 	log.Println("Consumer started. Waiting for messages...")
-	startConsumeLoop(reader, handler)
+	StartConsumeLoop(reader, handler)
 }
 
 func createConsumer(broker string, topic string) *kafka.Reader {
@@ -25,7 +25,7 @@ func createConsumer(broker string, topic string) *kafka.Reader {
 	return reader
 }
 
-func startConsumeLoop(reader *kafka.Reader, handler INotificationRequestHandler) {
+func StartConsumeLoop(reader *kafka.Reader, handler INotificationRequestHandler) {
 	ctx := context.Background()
 	for {
 		msg, err := reader.ReadMessage(ctx)
@@ -41,6 +41,6 @@ func startConsumeLoop(reader *kafka.Reader, handler INotificationRequestHandler)
 			continue
 		}
 
-		handler.handleNotificationRequest(notificationData)
+		handler.HandleNotificationRequest(notificationData)
 	}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type INotificationRequestHandler interface {
-	handleNotificationRequest(data models.NotificationData)
+	HandleNotificationRequest(data models.NotificationData)
 }
 
 type NotificationRequestHandler struct {
@@ -20,7 +20,7 @@ func NewNotificationRequestHandler(senders []send_notification.INotificationSend
 	}
 }
 
-func (h *NotificationRequestHandler) handleNotificationRequest(data models.NotificationData) {
+func (h *NotificationRequestHandler) HandleNotificationRequest(data models.NotificationData) {
 	for _, sender := range h.senders {
 		err := sender.Send(data)
 		if err != nil {

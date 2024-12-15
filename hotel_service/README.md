@@ -5,3 +5,4 @@
 - `DB_USERNAME`
 - `DB_PASSWORD`
 - `booking_gRPC_port` - порт для gRPC с booking_service, например, `50051`
+- `JAEGER_ENDPOINT` - адрес для Jaegger
