@@ -44,7 +44,7 @@ func loadEnv() error {
 
 	err := godotenv.Load(fileName)
 	if err != nil {
-		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %w", fileName, err))
+		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %e", fileName, err))
 	}
 
 	slog.Info("File .env was successfully loaded")
