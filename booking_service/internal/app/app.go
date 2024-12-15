@@ -2,11 +2,12 @@ package app
 
 import (
 	"booking_service/internal/server"
+	"booking_service/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
-    "log/slog"
 )
 
 func StartApp() {
@@ -20,9 +21,11 @@ func StartApp() {
 	cfg, err := server.NewCommonConfiguration()
 
 	if err != nil {
-        slog.Error(err.Error())
+		slog.Error(err.Error())
 		panic(err)
 	}
+
+	defer tracing.ShutdownTracerProvider(context.Background(), cfg.TracerProvider)
 
 	server.NewServer(cfg.ServerConfig, cfg.BookingService)
 	slog.Info("Application is running")
@@ -44,6 +47,6 @@ func loadEnv() error {
 		slog.Error(fmt.Sprintf("file %s not found in the root of the project: %w", fileName, err))
 	}
 
-    slog.Info("File .env was successfully loaded")
+	slog.Info("File .env was successfully loaded")
 	return nil
 }
