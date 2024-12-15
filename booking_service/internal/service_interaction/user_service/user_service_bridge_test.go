@@ -5,7 +5,6 @@ import (
 	"booking_service/internal/service_interaction/user_service/gen"
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
@@ -16,9 +15,9 @@ type MockUserServiceClient struct {
 	mock.Mock
 }
 
-func (m *MockUserServiceClient) GetUserContactDate(ctx context.Context, in *gen.GetUserContactDataRequest, opts ...grpc.CallOption) (*gen.GetUserContactDataResponse, error) {
+func (m *MockUserServiceClient) GetUserContactData(ctx context.Context, in *gen.GetUserDataRequest, opts ...grpc.CallOption) (*gen.GetUserDataResponse, error) {
 	args := m.Called(ctx, in)
-	return args.Get(0).(*gen.GetUserContactDataResponse), args.Error(1)
+	return args.Get(0).(*gen.GetUserDataResponse), args.Error(1)
 }
 
 func TestNewUserServiceBridge(t *testing.T) {
@@ -32,16 +31,16 @@ func TestUserServiceBridge_GetUserContactData(t *testing.T) {
 	mockClient := new(MockUserServiceClient)
 	userBridge := &user_service.UserServiceBridge{GrpcClient: mockClient}
 
-	userId := uuid.New()
+	userToken := "token"
 	expectedEmail := "test@example.com"
 	expectedPhone := "1234567890"
 
-	mockClient.On("GetUserContactDate", mock.Anything, &gen.GetUserContactDataRequest{UserId: userId.String()}).Return(&gen.GetUserContactDataResponse{
+	mockClient.On("GetUserContactData", mock.Anything, &gen.GetUserDataRequest{Token: userToken}).Return(&gen.GetUserDataResponse{
 		Email: expectedEmail,
 		Phone: expectedPhone,
 	}, nil)
 
-	contactData, err := userBridge.GetUserContactData(userId)
+	contactData, err := userBridge.GetUserContactData(userToken)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, contactData)
@@ -54,11 +53,11 @@ func TestUserServiceBridge_GetUserContactData_Error(t *testing.T) {
 	mockClient := new(MockUserServiceClient)
 	userBridge := &user_service.UserServiceBridge{GrpcClient: mockClient}
 
-	userId := uuid.New()
+	userToken := "token"
 
-	mockClient.On("GetUserContactDate", mock.Anything, &gen.GetUserContactDataRequest{UserId: userId.String()}).Return(&gen.GetUserContactDataResponse{}, errors.New("failed to get user contact data"))
+	mockClient.On("GetUserContactData", mock.Anything, &gen.GetUserDataRequest{Token: userToken}).Return(&gen.GetUserDataResponse{}, errors.New("failed to get user contact data"))
 
-	contactData, err := userBridge.GetUserContactData(userId)
+	contactData, err := userBridge.GetUserContactData(userToken)
 
 	assert.Error(t, err)
 	assert.Nil(t, contactData)
@@ -69,11 +68,11 @@ func TestUserServiceBridge_GetUserContactData_Timeout(t *testing.T) {
 	mockClient := new(MockUserServiceClient)
 	userBridge := &user_service.UserServiceBridge{GrpcClient: mockClient}
 
-	userId := uuid.New()
+	userToken := "token"
 
-	mockClient.On("GetUserContactDate", mock.Anything, &gen.GetUserContactDataRequest{UserId: userId.String()}).Return(&gen.GetUserContactDataResponse{}, errors.New("context deadline exceeded"))
+	mockClient.On("GetUserContactData", mock.Anything, &gen.GetUserDataRequest{Token: userToken}).Return(&gen.GetUserDataResponse{}, errors.New("context deadline exceeded"))
 
-	contactData, err := userBridge.GetUserContactData(userId)
+	contactData, err := userBridge.GetUserContactData(userToken)
 
 	assert.Error(t, err)
 	assert.Nil(t, contactData)

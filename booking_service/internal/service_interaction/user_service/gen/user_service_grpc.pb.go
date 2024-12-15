@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUserContactDate_FullMethodName = "/service_interaction.UserService/GetUserContactDate"
+	UserService_GetUserContactData_FullMethodName = "/service_interaction.UserService/GetUserContactData"
 )
 
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	GetUserContactDate(ctx context.Context, in *GetUserContactDataRequest, opts ...grpc.CallOption) (*GetUserContactDataResponse, error)
+	GetUserContactData(ctx context.Context, in *GetUserDataRequest, opts ...grpc.CallOption) (*GetUserDataResponse, error)
 }
 
 type userServiceClient struct {
@@ -37,10 +37,10 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetUserContactDate(ctx context.Context, in *GetUserContactDataRequest, opts ...grpc.CallOption) (*GetUserContactDataResponse, error) {
+func (c *userServiceClient) GetUserContactData(ctx context.Context, in *GetUserDataRequest, opts ...grpc.CallOption) (*GetUserDataResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserContactDataResponse)
-	err := c.cc.Invoke(ctx, UserService_GetUserContactDate_FullMethodName, in, out, cOpts...)
+	out := new(GetUserDataResponse)
+	err := c.cc.Invoke(ctx, UserService_GetUserContactData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *userServiceClient) GetUserContactDate(ctx context.Context, in *GetUserC
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
-	GetUserContactDate(context.Context, *GetUserContactDataRequest) (*GetUserContactDataResponse, error)
+	GetUserContactData(context.Context, *GetUserDataRequest) (*GetUserDataResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -62,8 +62,8 @@ type UserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedUserServiceServer) GetUserContactDate(context.Context, *GetUserContactDataRequest) (*GetUserContactDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserContactDate not implemented")
+func (UnimplementedUserServiceServer) GetUserContactData(context.Context, *GetUserDataRequest) (*GetUserDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserContactData not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -86,20 +86,20 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
 }
 
-func _UserService_GetUserContactDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserContactDataRequest)
+func _UserService_GetUserContactData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUserContactDate(ctx, in)
+		return srv.(UserServiceServer).GetUserContactData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetUserContactDate_FullMethodName,
+		FullMethod: UserService_GetUserContactData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserContactDate(ctx, req.(*GetUserContactDataRequest))
+		return srv.(UserServiceServer).GetUserContactData(ctx, req.(*GetUserDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetUserContactDate",
-			Handler:    _UserService_GetUserContactDate_Handler,
+			MethodName: "GetUserContactData",
+			Handler:    _UserService_GetUserContactData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

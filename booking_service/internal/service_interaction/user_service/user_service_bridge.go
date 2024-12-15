@@ -10,13 +10,14 @@ import (
 	"time"
 )
 
-type UserContactData struct {
-	Email string `json:"email"`
-	Phone string `json:"phone"`
+type UserData struct {
+	Id    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Phone string    `json:"phone"`
 }
 
 type IUserServiceBridge interface {
-	GetUserContactData(userId uuid.UUID) (*UserContactData, error)
+	GetUserContactData(token string) (*UserData, error)
 }
 
 type UserServiceBridge struct {
@@ -34,17 +35,17 @@ func NewUserServiceBridge(grpcAddress string) (*UserServiceBridge, error) {
 	return &UserServiceBridge{GrpcClient: client}, nil
 }
 
-func (u *UserServiceBridge) GetUserContactData(userId uuid.UUID) (*UserContactData, error) {
+func (u *UserServiceBridge) GetUserContactData(token string) (*UserData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	request := &gen.GetUserContactDataRequest{UserId: userId.String()}
-	slog.Info("Sending request to get contact data of user with id " + userId.String())
-	response, err := u.GrpcClient.GetUserContactDate(ctx, request)
+	request := &gen.GetUserDataRequest{Token: token}
+	slog.Info("Sending request to get contact data of user with id " + token)
+	response, err := u.GrpcClient.GetUserContactData(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 
-	userContactData := &UserContactData{Email: response.Email, Phone: response.Phone}
+	userContactData := &UserData{Email: response.Email, Phone: response.Phone}
 	return userContactData, nil
 }

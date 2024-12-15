@@ -26,8 +26,8 @@ type MockBookingService struct {
 	mock.Mock
 }
 
-func (m *MockBookingService) CreateRent(req requests.CreateRentRequest) (uuid.UUID, error) {
-	args := m.Called(req)
+func (m *MockBookingService) CreateRent(req requests.CreateRentRequest, token string) (uuid.UUID, error) {
+	args := m.Called(req, token)
 	return args.Get(0).(uuid.UUID), args.Error(1)
 }
 
@@ -63,18 +63,19 @@ func TestCreateRent_CommonCase_Ok(t *testing.T) {
 
 	checkInDate := time.Now().Truncate(time.Second)
 	checkOutDate := checkInDate.Add(72 * time.Hour)
+	userToken := "token"
 	reqBody := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
-		ClientID:     uuid.New(),
 		CheckInDate:  checkInDate,
 		CheckOutDate: checkOutDate,
 	}
 
 	rentID := uuid.New()
-	mockService.On("CreateRent", reqBody).Return(rentID, nil)
+	mockService.On("CreateRent", reqBody, userToken).Return(rentID, nil)
 
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest("POST", "/api/rent", bytes.NewReader(body))
+	req.Header.Set("Authorization", "bearer "+userToken)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -92,8 +93,10 @@ func TestCreateRent_InvalidBody_BadRequest(t *testing.T) {
 	router := setupTestRouter(mockService)
 
 	reqBody := []byte("{invalid_json}")
+	userToken := "token"
 
 	req := httptest.NewRequest("POST", "/api/rent", bytes.NewReader(reqBody))
+	req.Header.Set("Authorization", "bearer "+userToken)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -105,18 +108,19 @@ func TestCreateRent_InvalidBody_BadRequest(t *testing.T) {
 func TestCreateRent_CheckOutLessThanCheckIn_ReturnBadRequest(t *testing.T) {
 	mockService := new(MockBookingService)
 	router := setupTestRouter(mockService)
+	userToken := "token"
 
 	checkInDate := time.Now().Truncate(time.Second)
 	checkOutDate := checkInDate.Add(-72 * time.Hour)
 	reqBody := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
-		ClientID:     uuid.New(),
 		CheckInDate:  checkInDate,
 		CheckOutDate: checkOutDate,
 	}
 
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest("POST", "/api/rent", bytes.NewReader(body))
+	req.Header.Set("Authorization", "bearer "+userToken)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
@@ -128,20 +132,21 @@ func TestCreateRent_CheckOutLessThanCheckIn_ReturnBadRequest(t *testing.T) {
 func TestCreateRent_NotExistingHotel_ReturnNotFound(t *testing.T) {
 	mockService := new(MockBookingService)
 	router := setupTestRouter(mockService)
+	userToken := "token"
 
 	checkInDate := time.Now().Truncate(time.Second)
 	checkOutDate := checkInDate.Add(72 * time.Hour)
 	reqBody := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
-		ClientID:     uuid.New(),
 		CheckInDate:  checkInDate,
 		CheckOutDate: checkOutDate,
 	}
 
-	mockService.On("CreateRent", mock.Anything).Return(uuid.Nil, errors2.NewServiceBadRequestError("service error", ""))
+	mockService.On("CreateRent", mock.Anything, userToken).Return(uuid.Nil, errors2.NewServiceBadRequestError("service error", ""))
 
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest("POST", "/api/rent", bytes.NewReader(body))
+	req.Header.Set("Authorization", "bearer "+userToken)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)

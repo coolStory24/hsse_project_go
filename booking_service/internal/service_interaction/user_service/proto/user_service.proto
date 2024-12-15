@@ -7,14 +7,15 @@ option go_package = "booking_service/internal/service_interaction;service_intera
 import "google/protobuf/wrappers.proto";
 
 service UserService {
-  rpc GetUserContactDate(GetUserContactDataRequest) returns (GetUserContactDataResponse);
+  rpc GetUserContactData(GetUserDataRequest) returns (GetUserDataResponse);
 }
 
-message GetUserContactDataRequest {
-  string user_id = 1;
+message GetUserDataRequest {
+  string token = 1;
 }
 
-message GetUserContactDataResponse {
-  string email = 1;
-  string phone = 2;
+message GetUserDataResponse {
+  string id = 1;
+  string email = 2;
+  string phone = 3;
 }

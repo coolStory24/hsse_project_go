@@ -11,12 +11,29 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
 func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		slog.Info("Calling the rent creation handler")
+		// Get user who sent request
+		authHeader := r.Header.Get("Authorization")
+
+		if authHeader == "" {
+			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+			http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
+			return
+		}
+
+		token := parts[1]
+
 		var req requests.CreateRentRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -30,7 +47,7 @@ func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
 			return
 		}
 
-		rentID, err := service.CreateRent(req)
+		rentID, err := service.CreateRent(req, token)
 		if err != nil {
 			if errors.As(err, new(*custom_errors.ServiceBadRequestError)) {
 				http.Error(w, err.Error(), http.StatusBadRequest)

@@ -55,9 +55,9 @@ func (m *MockHotelServiceBridge) ReceiveKafkaMessage(hotelID uuid.UUID) (int, er
 	return args.Int(0), args.Error(1)
 }
 
-func (m *MockUserServiceBridge) GetUserContactData(userId uuid.UUID) (*user_service.UserContactData, error) {
-	args := m.Called(userId)
-	return args.Get(0).(*user_service.UserContactData), nil
+func (m *MockUserServiceBridge) GetUserContactData(token string) (*user_service.UserData, error) {
+	args := m.Called(token)
+	return args.Get(0).(*user_service.UserData), nil
 }
 
 func (m *MockNotificationServiceBridge) SendNotification(ctx context.Context, notificationData *notification_service.NotificationData) {
@@ -78,25 +78,26 @@ func TestCreateRent_CommonCase_Ok(t *testing.T) {
 	rentID := uuid.New()
 	request := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
-		ClientID:     uuid.New(),
 		CheckInDate:  time.Now(),
 		CheckOutDate: time.Now().Add(24 * time.Hour),
 	}
 	nightPrice := 100000
 
+	userId := uuid.New()
+	token := "token"
 	mock.ExpectQuery(`INSERT INTO bookings \(hotel_id, client_id, check_in_date, check_out_date\) VALUES \(\$1, \$2, \$3, \$4\) RETURNING id`).
-		WithArgs(request.HotelID, request.ClientID, request.CheckInDate, request.CheckOutDate).
+		WithArgs(request.HotelID, userId, request.CheckInDate, request.CheckOutDate).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(rentID))
 
 	bridgeMock.On("GetHotelPrice", request.HotelID).Return(nightPrice, nil)
-	userBridgeMock.On("GetUserContactData", request.ClientID).Return(&user_service.UserContactData{})
+	userBridgeMock.On("GetUserContactData", token).Return(&user_service.UserData{Id: userId})
 
 	mock.ExpectQuery("SELECT b.id, b.hotel_id, b.client_id, b.check_in_date, b.check_out_date FROM bookings b").
 		WithArgs(rentID).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "hotel_id", "client_id", "check_in_date", "check_out_date"}).
-			AddRow(rentID, request.HotelID, request.ClientID, request.CheckInDate, request.CheckOutDate))
+			AddRow(rentID, request.HotelID, userId, request.CheckInDate, request.CheckOutDate))
 
-	id, err := bookingService.CreateRent(request)
+	id, err := bookingService.CreateRent(request, token)
 
 	assert.NoError(t, err)
 	assert.Equal(t, rentID, id)
@@ -107,22 +108,26 @@ func TestCreateRent_ErrorCase_DBError(t *testing.T) {
 	db, mock := createMockDB(t)
 	defer db.Close()
 
+	userBridgeMock := &MockUserServiceBridge{}
+
 	bookingService := services.NewBookingService(
-		&db2.Database{Connection: db}, &MockHotelServiceBridge{}, &MockUserServiceBridge{},
+		&db2.Database{Connection: db}, &MockHotelServiceBridge{}, userBridgeMock,
 		&MockNotificationServiceBridge{})
 
+	token := "token"
+	userId := uuid.New()
 	request := requests.CreateRentRequest{
 		HotelID:      uuid.New(),
-		ClientID:     uuid.New(),
 		CheckInDate:  time.Now(),
 		CheckOutDate: time.Now().Add(24 * time.Hour),
 	}
 
+	userBridgeMock.On("GetUserContactData", token).Return(&user_service.UserData{Id: userId})
 	mock.ExpectQuery(`INSERT INTO bookings \(hotel_id, client_id, check_in_date, check_out_date\) VALUES \(\$1, \$2, \$3, \$4\) RETURNING id`).
-		WithArgs(request.HotelID, request.ClientID, request.CheckInDate, request.CheckOutDate).
+		WithArgs(request.HotelID, userId, request.CheckInDate, request.CheckOutDate).
 		WillReturnError(fmt.Errorf("database error"))
 
-	_, err := bookingService.CreateRent(request)
+	_, err := bookingService.CreateRent(request, token)
 
 	assert.Error(t, err)
 	assert.Equal(t, "failed to create rent: database error", err.Error())

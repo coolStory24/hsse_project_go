@@ -16,7 +16,7 @@ import (
 )
 
 type IBookingService interface {
-	CreateRent(request requests.CreateRentRequest) (uuid.UUID, error)
+	CreateRent(request requests.CreateRentRequest, token string) (uuid.UUID, error)
 	UpdateRent(rentID uuid.UUID, request requests.UpdateRentRequest) error
 	GetRentByID(rentID uuid.UUID) (*responses.GetRentResponse, error)
 	GetRents(filter requests.RentFilter) (*responses.GetRentsResponse, error)
@@ -41,16 +41,20 @@ func NewBookingService(
 		notificationServiceBridge: notificationServiceBridge}
 }
 
-func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UUID, error) {
+func (s *BookingService) CreateRent(request requests.CreateRentRequest, token string) (uuid.UUID, error) {
 	slog.Info("Creation rent in service")
-	var rentID uuid.UUID
+	userData, err := s.userServiceBridge.GetUserContactData(token)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to fetch user data for notification: %w", err)
+	}
 
+	var rentID uuid.UUID
 	query := `
         INSERT INTO bookings (hotel_id, client_id, check_in_date, check_out_date)
         VALUES ($1, $2, $3, $4)
         RETURNING id`
 
-	err := s.Db.Connection.QueryRow(query, request.HotelID, request.ClientID, request.CheckInDate, request.CheckOutDate).Scan(&rentID)
+	err = s.Db.Connection.QueryRow(query, request.HotelID, userData.Id, request.CheckInDate, request.CheckOutDate).Scan(&rentID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to create rent: %w", err)
 	}
@@ -60,18 +64,7 @@ func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UU
 		return uuid.Nil, fmt.Errorf("failed to handle rent creation: %w", err)
 	}
 
-	userContactData, err := s.userServiceBridge.GetUserContactData(request.ClientID)
-	// todo: remove when there is user service
-	if err != nil {
-		userContactData = &user_service.UserContactData{Phone: "123546", Email: "test@gmail.com"}
-		err = nil
-	}
-
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to fetch user data for notification: %w", err)
-	}
-
-	notificationData := &notification_service.NotificationData{UserContactData: userContactData, RentData: createdRent}
+	notificationData := &notification_service.NotificationData{UserContactData: userData, RentData: createdRent}
 	s.notificationServiceBridge.SendNotification(context.Background(), notificationData)
 
 	return rentID, nil
