@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,7 +15,11 @@ import (
 	"user_service/internal/db"
 	"user_service/internal/repositories"
 	"user_service/internal/rest"
+	"user_service/internal/service_interaction"
+	pb "user_service/internal/service_interaction/gen"
 	"user_service/internal/services"
+
+	"google.golang.org/grpc"
 )
 
 func NewServer(cfg *config.ServerConfig) {
@@ -24,7 +30,9 @@ func NewServer(cfg *config.ServerConfig) {
 		return
 	}
 
-	router := rest.SetupApiRouter(cfg, services.NewUserService(repositories.NewUserRepository(dbConnection), services.NewEncryptionService(cfg.EncryptionKey)))
+	userService := services.NewUserService(repositories.NewUserRepository(dbConnection), services.NewEncryptionService(cfg.EncryptionKey))
+
+	router := rest.SetupApiRouter(cfg, userService)
 
 	// Server configuration
 	srv := &http.Server{
@@ -39,6 +47,26 @@ func NewServer(cfg *config.ServerConfig) {
 			fmt.Printf("Could not listen on %s: %v\n", cfg.Port, err)
 		}
 	}()
+
+	// gRCP
+	grpcHotelService := service_interaction.NewUserServiceBridge(userService)
+	grpcServer := grpc.NewServer()
+	pb.RegisterUserServiceServer(grpcServer, grpcHotelService)
+
+	grpcListener, err := net.Listen("tcp", ":"+os.Getenv("GRCP_PORT"))
+	if err != nil {
+		slog.Error("Failed to listen on gRPC port")
+		return
+	}
+
+	go func() {
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			slog.Error(fmt.Sprintf("gRPC server failed to start: %v\n", err))
+		}
+	}()
+
+	slog.Info("Server is starting on localhost" + srv.Addr)
+	slog.Info("gRPC server is starting on: " + os.Getenv("GRCP_PORT"))
 
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
