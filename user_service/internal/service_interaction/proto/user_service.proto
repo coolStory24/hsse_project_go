@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package service_interaction;
+
+option go_package = "user_service/internal/service_interaction;service_interaction";
+
+import "google/protobuf/wrappers.proto";
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  string token = 1;
+}
+
+message GetUserResponse {
+  string id = 1;        
+  string username = 2;  
+  string email = 3;     
+  string role = 4;  
+}
