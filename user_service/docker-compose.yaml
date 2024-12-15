@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -h localhost -p 5432 -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  goose-migrate:
+    image: golang:latest
+    container_name: goose-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres-db
+      POSTGRES_PORT: 5432
+    entrypoint: >
+      sh -c "
+      go install github.com/pressly/goose/v3/cmd/goose@latest &&
+      goose -dir ./internal/db/migrations postgres
+      \"postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres-db:5432/$POSTGRES_DB?sslmode=disable\" up
+      "
+
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      goose-migrate:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: postgres-db 
+      SERVER_PORT: :8080
+      SERVER_PREFIX: ${SERVER_PREFIX}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      MIGRATIONS_DIR: "./migrations"
+    ports:
+      - "${SERVER_PORT}:8080"
+    volumes:
+      - .:/app
+    command: ["go", "run", "./cmd/main.go"]
+
+volumes:
+  pgdata:
