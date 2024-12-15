@@ -7,6 +7,7 @@ import (
 	"booking_service/internal/service_interaction/hotel_service"
 	"booking_service/internal/service_interaction/notification_service"
 	"booking_service/internal/service_interaction/user_service"
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
@@ -71,7 +72,7 @@ func (s *BookingService) CreateRent(request requests.CreateRentRequest) (uuid.UU
 	}
 
 	notificationData := &notification_service.NotificationData{UserContactData: userContactData, RentData: createdRent}
-	s.notificationServiceBridge.SendNotification(notificationData)
+	s.notificationServiceBridge.SendNotification(context.Background(), notificationData)
 
 	return rentID, nil
 }

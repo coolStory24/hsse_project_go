@@ -1,9 +1,11 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"github.com/joho/godotenv"
 	"hotel_service/internal/server"
+	"hotel_service/internal/tracing"
 	"log/slog"
 )
 
@@ -21,6 +23,8 @@ func StartApp() {
 		slog.Error(err.Error())
 		panic(err)
 	}
+
+	defer tracing.ShutdownTracerProvider(context.Background(), cfg.TracerProvider)
 
 	server.NewServer(cfg.ServerConfig, cfg.HotelService)
 }

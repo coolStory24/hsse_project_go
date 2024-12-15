@@ -8,10 +8,10 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"net/http"
-	"time"
 	"log/slog"
+	"net/http"
 	"strconv"
+	"time"
 )
 
 func CreateRentHandler(service services.IBookingService) http.HandlerFunc {
@@ -147,11 +147,8 @@ func GetRentsHandler(service services.IBookingService) http.HandlerFunc {
 			slog.Error("Failed to encode response" + strconv.Itoa(http.StatusInternalServerError))
 			return
 		}
+
 		slog.Info("The rents was successfully got")
-		slog.Info("Client ID: " + clientID.String())
-		slog.Info("Hotel ID: " + hotelID.String())
-		slog.Info("FromDate: " + fromDate.String())
-		slog.Info("ToDate: " + toDate.String())
 	}
 }
 
