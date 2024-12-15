@@ -27,6 +27,7 @@ func StartApp() {
 	defer tracing.ShutdownTracerProvider(context.Background(), cfg.TracerProvider)
 
 	server.NewServer(cfg.ServerConfig, cfg.HotelService)
+	slog.Info("Stopping the application")
 }
 
 func loadEnv() error {
